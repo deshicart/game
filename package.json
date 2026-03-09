@@ -1,0 +1,24 @@
+{
+  "name": "game",
+  "version": "1.0.0",
+  "description": "A vertical endless jumping game inspired by Doodle Jump, built with HTML5, JavaScript, and the Phaser.js game engine. Optimized for Android devices and compatible with all modern mobile and desktop browsers.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/deshicart/game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/deshicart/game/issues"
+  },
+  "homepage": "https://github.com/deshicart/game#readme",
+  "dependencies": {
+    "phaser": "^3.60.0"
+  }
+}
