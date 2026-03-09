@@ -4,84 +4,143 @@ const PlatformManager = {
     createPlatformTextures(scene) {
         const theme = scene.selectedTheme || 'classic';
 
-        // Static platform
+        // Static platform - green neon glow
         const staticGfx = scene.make.graphics({ add: false });
         if (theme === 'neon') {
-            staticGfx.fillStyle(0x00ffcc, 1);
-            staticGfx.fillRoundedRect(0, 0, 80, 15, 4);
-            staticGfx.lineStyle(2, 0x00ffff, 0.8);
-            staticGfx.strokeRoundedRect(0, 0, 80, 15, 4);
+            // Outer glow
+            staticGfx.fillStyle(0x00ff88, 0.15);
+            staticGfx.fillRoundedRect(0, 0, 100, 18, 9);
+            // Main body
+            staticGfx.fillStyle(0x00dd77, 1);
+            staticGfx.fillRoundedRect(2, 2, 96, 14, 7);
+            // Inner highlight
+            staticGfx.fillStyle(0x00ff99, 0.6);
+            staticGfx.fillRoundedRect(6, 3, 88, 6, 3);
+            // Border glow
+            staticGfx.lineStyle(1, 0x00ffaa, 0.8);
+            staticGfx.strokeRoundedRect(2, 2, 96, 14, 7);
         } else if (theme === 'space') {
-            staticGfx.fillStyle(0x8888cc, 1);
-            staticGfx.fillRoundedRect(0, 0, 80, 15, 6);
-            staticGfx.lineStyle(2, 0xaaaaff, 0.6);
-            staticGfx.strokeRoundedRect(0, 0, 80, 15, 6);
+            staticGfx.fillStyle(0x00dd77, 0.15);
+            staticGfx.fillRoundedRect(0, 0, 100, 18, 9);
+            staticGfx.fillStyle(0x00bb66, 1);
+            staticGfx.fillRoundedRect(2, 2, 96, 14, 7);
+            staticGfx.fillStyle(0x00dd88, 0.6);
+            staticGfx.fillRoundedRect(6, 3, 88, 6, 3);
+            staticGfx.lineStyle(1, 0x00ff99, 0.6);
+            staticGfx.strokeRoundedRect(2, 2, 96, 14, 7);
         } else {
-            staticGfx.fillStyle(0x44bb44, 1);
-            staticGfx.fillRoundedRect(0, 0, 80, 15, 3);
+            staticGfx.fillStyle(0x00ff88, 0.15);
+            staticGfx.fillRoundedRect(0, 0, 100, 18, 9);
+            staticGfx.fillStyle(0x00dd77, 1);
+            staticGfx.fillRoundedRect(2, 2, 96, 14, 7);
+            staticGfx.fillStyle(0x00ff99, 0.6);
+            staticGfx.fillRoundedRect(6, 3, 88, 6, 3);
+            staticGfx.lineStyle(1, 0x00ffaa, 0.8);
+            staticGfx.strokeRoundedRect(2, 2, 96, 14, 7);
         }
-        staticGfx.generateTexture('platform_static', 80, 15);
+        staticGfx.generateTexture('platform_static', 100, 18);
         staticGfx.destroy();
 
-        // Moving platform
+        // Moving platform - cyan/blue neon glow
         const movGfx = scene.make.graphics({ add: false });
         if (theme === 'neon') {
-            movGfx.fillStyle(0xff00ff, 1);
-            movGfx.fillRoundedRect(0, 0, 80, 15, 4);
-            movGfx.lineStyle(2, 0xff66ff, 0.8);
-            movGfx.strokeRoundedRect(0, 0, 80, 15, 4);
+            movGfx.fillStyle(0x00ccff, 0.15);
+            movGfx.fillRoundedRect(0, 0, 100, 18, 9);
+            movGfx.fillStyle(0x00aadd, 1);
+            movGfx.fillRoundedRect(2, 2, 96, 14, 7);
+            movGfx.fillStyle(0x00ddff, 0.6);
+            movGfx.fillRoundedRect(6, 3, 88, 6, 3);
+            movGfx.lineStyle(1, 0x00eeff, 0.8);
+            movGfx.strokeRoundedRect(2, 2, 96, 14, 7);
         } else if (theme === 'space') {
-            movGfx.fillStyle(0x6666dd, 1);
-            movGfx.fillRoundedRect(0, 0, 80, 15, 6);
-            movGfx.lineStyle(2, 0x9999ff, 0.6);
-            movGfx.strokeRoundedRect(0, 0, 80, 15, 6);
+            movGfx.fillStyle(0x00ccff, 0.15);
+            movGfx.fillRoundedRect(0, 0, 100, 18, 9);
+            movGfx.fillStyle(0x0088cc, 1);
+            movGfx.fillRoundedRect(2, 2, 96, 14, 7);
+            movGfx.fillStyle(0x00bbff, 0.6);
+            movGfx.fillRoundedRect(6, 3, 88, 6, 3);
+            movGfx.lineStyle(1, 0x00ddff, 0.6);
+            movGfx.strokeRoundedRect(2, 2, 96, 14, 7);
         } else {
-            movGfx.fillStyle(0x4488dd, 1);
-            movGfx.fillRoundedRect(0, 0, 80, 15, 3);
+            movGfx.fillStyle(0x00ccff, 0.15);
+            movGfx.fillRoundedRect(0, 0, 100, 18, 9);
+            movGfx.fillStyle(0x00aadd, 1);
+            movGfx.fillRoundedRect(2, 2, 96, 14, 7);
+            movGfx.fillStyle(0x00ddff, 0.6);
+            movGfx.fillRoundedRect(6, 3, 88, 6, 3);
+            movGfx.lineStyle(1, 0x00eeff, 0.8);
+            movGfx.strokeRoundedRect(2, 2, 96, 14, 7);
         }
-        movGfx.generateTexture('platform_moving', 80, 15);
+        movGfx.generateTexture('platform_moving', 100, 18);
         movGfx.destroy();
 
-        // Breakable platform
+        // Breakable platform - red/orange neon
         const brkGfx = scene.make.graphics({ add: false });
         if (theme === 'neon') {
-            brkGfx.fillStyle(0xff4444, 0.8);
-            brkGfx.fillRoundedRect(0, 0, 80, 15, 4);
-            brkGfx.lineStyle(1, 0xff6666, 0.5);
-            brkGfx.strokeRoundedRect(0, 0, 80, 15, 4);
+            brkGfx.fillStyle(0xff4444, 0.15);
+            brkGfx.fillRoundedRect(0, 0, 100, 18, 9);
+            brkGfx.fillStyle(0xcc3333, 0.9);
+            brkGfx.fillRoundedRect(2, 2, 96, 14, 7);
+            brkGfx.fillStyle(0xff5555, 0.5);
+            brkGfx.fillRoundedRect(6, 3, 88, 6, 3);
+            brkGfx.lineStyle(1, 0xff6666, 0.6);
+            brkGfx.strokeRoundedRect(2, 2, 96, 14, 7);
         } else if (theme === 'space') {
-            brkGfx.fillStyle(0xcc6644, 0.8);
-            brkGfx.fillRoundedRect(0, 0, 80, 15, 6);
+            brkGfx.fillStyle(0xcc6644, 0.15);
+            brkGfx.fillRoundedRect(0, 0, 100, 18, 9);
+            brkGfx.fillStyle(0xaa5533, 0.9);
+            brkGfx.fillRoundedRect(2, 2, 96, 14, 7);
+            brkGfx.fillStyle(0xcc7755, 0.5);
+            brkGfx.fillRoundedRect(6, 3, 88, 6, 3);
         } else {
-            brkGfx.fillStyle(0xbb8844, 1);
-            brkGfx.fillRoundedRect(0, 0, 80, 15, 3);
-            // Draw crack lines
-            brkGfx.lineStyle(1, 0x886633, 1);
-            brkGfx.lineBetween(20, 0, 35, 15);
-            brkGfx.lineBetween(50, 0, 45, 15);
+            brkGfx.fillStyle(0xff4444, 0.15);
+            brkGfx.fillRoundedRect(0, 0, 100, 18, 9);
+            brkGfx.fillStyle(0xcc3333, 0.9);
+            brkGfx.fillRoundedRect(2, 2, 96, 14, 7);
+            brkGfx.fillStyle(0xff5555, 0.5);
+            brkGfx.fillRoundedRect(6, 3, 88, 6, 3);
+            brkGfx.lineStyle(1, 0xff6666, 0.6);
+            brkGfx.strokeRoundedRect(2, 2, 96, 14, 7);
         }
-        brkGfx.generateTexture('platform_breakable', 80, 15);
+        brkGfx.generateTexture('platform_breakable', 100, 18);
         brkGfx.destroy();
 
         // Spring platform
         const sprGfx = scene.make.graphics({ add: false });
         if (theme === 'neon') {
-            sprGfx.fillStyle(0x00ffcc, 1);
-            sprGfx.fillRoundedRect(0, 10, 80, 15, 4);
-            sprGfx.fillStyle(0xffff00, 1);
-            sprGfx.fillRoundedRect(30, 0, 20, 12, 3);
+            sprGfx.fillStyle(0x00ff88, 0.15);
+            sprGfx.fillRoundedRect(0, 12, 100, 18, 9);
+            sprGfx.fillStyle(0x00dd77, 1);
+            sprGfx.fillRoundedRect(2, 14, 96, 14, 7);
+            sprGfx.fillStyle(0x00ff99, 0.6);
+            sprGfx.fillRoundedRect(6, 15, 88, 6, 3);
+            sprGfx.lineStyle(1, 0x00ffaa, 0.8);
+            sprGfx.strokeRoundedRect(2, 14, 96, 14, 7);
+            // Spring coil
+            sprGfx.fillStyle(0xffdd00, 1);
+            sprGfx.fillRoundedRect(38, 0, 24, 14, 4);
+            sprGfx.fillStyle(0xffee44, 0.8);
+            sprGfx.fillRoundedRect(40, 2, 20, 4, 2);
         } else if (theme === 'space') {
-            sprGfx.fillStyle(0x8888cc, 1);
-            sprGfx.fillRoundedRect(0, 10, 80, 15, 6);
+            sprGfx.fillStyle(0x00bb66, 0.15);
+            sprGfx.fillRoundedRect(0, 12, 100, 18, 9);
+            sprGfx.fillStyle(0x00bb66, 1);
+            sprGfx.fillRoundedRect(2, 14, 96, 14, 7);
             sprGfx.fillStyle(0xffcc44, 1);
-            sprGfx.fillRoundedRect(30, 0, 20, 12, 3);
+            sprGfx.fillRoundedRect(38, 0, 24, 14, 4);
         } else {
-            sprGfx.fillStyle(0x44bb44, 1);
-            sprGfx.fillRoundedRect(0, 10, 80, 15, 3);
-            sprGfx.fillStyle(0xff6600, 1);
-            sprGfx.fillRoundedRect(30, 0, 20, 12, 3);
+            sprGfx.fillStyle(0x00ff88, 0.15);
+            sprGfx.fillRoundedRect(0, 12, 100, 18, 9);
+            sprGfx.fillStyle(0x00dd77, 1);
+            sprGfx.fillRoundedRect(2, 14, 96, 14, 7);
+            sprGfx.fillStyle(0x00ff99, 0.6);
+            sprGfx.fillRoundedRect(6, 15, 88, 6, 3);
+            sprGfx.lineStyle(1, 0x00ffaa, 0.8);
+            sprGfx.strokeRoundedRect(2, 14, 96, 14, 7);
+            sprGfx.fillStyle(0xffdd00, 1);
+            sprGfx.fillRoundedRect(38, 0, 24, 14, 4);
         }
-        sprGfx.generateTexture('platform_spring', 80, 25);
+        sprGfx.generateTexture('platform_spring', 100, 30);
         sprGfx.destroy();
     },
 

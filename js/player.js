@@ -5,8 +5,8 @@ const PlayerManager = {
         {
             id: 'classic',
             name: 'Classic Hero',
-            description: 'Simple neon character',
-            colors: { body: 0x00ff88, outline: 0x00ffaa, eye: 0xffffff, pupil: 0x000000 },
+            description: 'Cute cyan blob',
+            colors: { body: 0x00ffcc, outline: 0x00ddaa, eye: 0xffffff, pupil: 0x222222 },
             cost: 0
         },
         {
@@ -75,24 +75,25 @@ const PlayerManager = {
             gfx.lineStyle(1, c.outline, 0.6);
             gfx.lineBetween(6, 20, 26, 20);
         } else {
-            // Classic Hero
-            // Body
+            // Classic Hero - Cute cyan blob with big eyes
+            // Outer glow
+            gfx.fillStyle(c.body, 0.15);
+            gfx.fillCircle(16, 18, 18);
+            // Body - rounded blob shape
             gfx.fillStyle(c.body, 1);
-            gfx.fillRoundedRect(6, 4, 20, 22, 5);
-            // Eyes
-            gfx.fillStyle(c.eye, 1);
-            gfx.fillCircle(12, 12, 4);
-            gfx.fillCircle(20, 12, 4);
+            gfx.fillCircle(16, 20, 14);
+            gfx.fillCircle(16, 12, 11);
+            // Smooth connection
+            gfx.fillStyle(c.body, 1);
+            gfx.fillRoundedRect(4, 10, 24, 18, 8);
+            // Eyes - big cute dark eyes
             gfx.fillStyle(c.pupil, 1);
-            gfx.fillCircle(13, 12, 2);
-            gfx.fillCircle(21, 12, 2);
-            // Legs
-            gfx.fillStyle(c.body, 1);
-            gfx.fillRect(9, 24, 5, 8);
-            gfx.fillRect(18, 24, 5, 8);
-            // Outline glow
-            gfx.lineStyle(1, c.outline, 0.5);
-            gfx.strokeRoundedRect(6, 4, 20, 22, 5);
+            gfx.fillCircle(11, 14, 4);
+            gfx.fillCircle(21, 14, 4);
+            // Eye highlights (white reflection dots)
+            gfx.fillStyle(c.eye, 0.9);
+            gfx.fillCircle(9, 12, 1.5);
+            gfx.fillCircle(19, 12, 1.5);
         }
 
         gfx.generateTexture('player', 32, 36);

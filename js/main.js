@@ -129,11 +129,11 @@ class MenuScene extends Phaser.Scene {
         const h = this.scale.height;
 
         // Always dark starry background for menu
-        this.cameras.main.setBackgroundColor('#0a0a2e');
+        this.cameras.main.setBackgroundColor('#050510');
         this.drawMenuBackground(w, h);
 
-        // Decorative game elements (platforms, character, enemy)
-        this.drawDecorativeElements(w, h);
+        // Animated decorative elements
+        this.drawAnimatedElements(w, h);
 
         // Title "NEON LEAP"
         const titleStyle = {
@@ -145,18 +145,36 @@ class MenuScene extends Phaser.Scene {
             strokeThickness: 3,
             shadow: { offsetX: 0, offsetY: 0, color: '#00ffcc', blur: 25, fill: true }
         };
-        this.add.text(w / 2, h * 0.1, 'NEON', titleStyle).setOrigin(0.5);
-        this.add.text(w / 2, h * 0.2, 'LEAP', titleStyle).setOrigin(0.5);
+        const titleNeon = this.add.text(w / 2, h * 0.1, 'NEON', titleStyle).setOrigin(0.5);
+        const titleLeap = this.add.text(w / 2, h * 0.2, 'LEAP', titleStyle).setOrigin(0.5);
+
+        // Animate title with pulsing glow
+        this.tweens.add({
+            targets: [titleNeon, titleLeap],
+            alpha: { from: 0.8, to: 1 },
+            duration: 1500,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
 
         // Tagline
-        this.add.text(w / 2, h * 0.37, 'Jump. Survive. Ascend.', {
+        const tagline = this.add.text(w / 2, h * 0.37, 'Jump. Survive. Ascend.', {
             fontSize: '16px', fontFamily: 'Arial, sans-serif', color: '#8899aa'
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setAlpha(0);
 
-        // Best score
+        this.tweens.add({
+            targets: tagline,
+            alpha: 1,
+            duration: 1000,
+            delay: 500
+        });
+
+        // Best score (no emoji - use drawn icon)
         const best = UIManager.getBestScore();
         const bestStr = best.toLocaleString();
-        this.add.text(w / 2, h * 0.6, '🏆 BEST: ' + bestStr, {
+        this.drawTrophyIcon(w / 2 - 70, h * 0.6 - 10);
+        this.add.text(w / 2 + 10, h * 0.6, 'BEST: ' + bestStr, {
             fontSize: '20px', fontFamily: 'Arial, sans-serif', fontStyle: 'bold',
             color: '#ffdd44',
             shadow: { offsetX: 0, offsetY: 0, color: '#ffaa00', blur: 10, fill: true }
@@ -165,13 +183,13 @@ class MenuScene extends Phaser.Scene {
         // TAP TO START button
         this.createStartButton(w, h);
 
-        // Warning
-        this.add.text(w / 2, h * 0.8, '⚠ Stomp enemies from above to kill!', {
+        // Warning (no emoji)
+        this.add.text(w / 2, h * 0.8, 'Stomp enemies from above to kill!', {
             fontSize: '13px', fontFamily: 'Arial, sans-serif', color: '#ffaa44'
         }).setOrigin(0.5);
 
         // Controls info
-        this.add.text(w / 2, h * 0.86, '← → keys  |  Tap sides  |  Tilt phone', {
+        this.add.text(w / 2, h * 0.86, 'Arrow keys  |  Tap sides  |  Tilt phone', {
             fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#556677'
         }).setOrigin(0.5);
 
@@ -182,85 +200,166 @@ class MenuScene extends Phaser.Scene {
     drawMenuBackground(w, h) {
         const gfx = this.add.graphics();
         // Stars
-        for (let i = 0; i < 80; i++) {
+        this.starObjects = [];
+        for (let i = 0; i < 100; i++) {
             const sx = Phaser.Math.Between(0, w);
             const sy = Phaser.Math.Between(0, h);
             const size = Math.random() * 1.5 + 0.5;
-            gfx.fillStyle(0xffffff, Math.random() * 0.5 + 0.2);
+            const alpha = Math.random() * 0.5 + 0.2;
+            gfx.fillStyle(0xffffff, alpha);
             gfx.fillCircle(sx, sy, size);
+        }
+
+        // Animated twinkling stars
+        for (let i = 0; i < 15; i++) {
+            const star = this.add.graphics();
+            const sx = Phaser.Math.Between(0, w);
+            const sy = Phaser.Math.Between(0, h);
+            const size = Math.random() * 2 + 1;
+            star.fillStyle(0xffffff, 0.8);
+            star.fillCircle(0, 0, size);
+            star.setPosition(sx, sy);
+
+            this.tweens.add({
+                targets: star,
+                alpha: { from: 0.2, to: 1 },
+                duration: Phaser.Math.Between(800, 2000),
+                yoyo: true,
+                repeat: -1,
+                delay: Phaser.Math.Between(0, 1500)
+            });
         }
     }
 
-    drawDecorativeElements(w, h) {
-        const gfx = this.add.graphics();
+    drawAnimatedElements(w, h) {
+        // Floating platform animation (left)
+        const platGfx1 = this.add.graphics();
+        platGfx1.fillStyle(0x00dd77, 1);
+        platGfx1.fillRoundedRect(-45, -7, 90, 14, 7);
+        platGfx1.fillStyle(0x00ff99, 0.6);
+        platGfx1.fillRoundedRect(-41, -6, 82, 6, 3);
+        platGfx1.lineStyle(1, 0x00ffaa, 0.8);
+        platGfx1.strokeRoundedRect(-45, -7, 90, 14, 7);
+        platGfx1.setPosition(80, h * 0.3);
 
-        // Green static platform (top-left area)
-        gfx.fillStyle(0x00ffcc, 1);
-        gfx.fillRoundedRect(15, h * 0.3, 95, 12, 4);
-        gfx.lineStyle(1, 0x00ffff, 0.6);
-        gfx.strokeRoundedRect(15, h * 0.3, 95, 12, 4);
+        this.tweens.add({
+            targets: platGfx1,
+            y: h * 0.3 - 8,
+            duration: 2000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
 
-        // Blue moving platform (right side)
-        gfx.fillStyle(0x4488ff, 1);
-        gfx.fillRoundedRect(w - 120, h * 0.43, 90, 12, 4);
-        gfx.lineStyle(1, 0x66aaff, 0.6);
-        gfx.strokeRoundedRect(w - 120, h * 0.43, 90, 12, 4);
+        // Floating platform animation (right)
+        const platGfx2 = this.add.graphics();
+        platGfx2.fillStyle(0x00aadd, 1);
+        platGfx2.fillRoundedRect(-40, -7, 80, 14, 7);
+        platGfx2.fillStyle(0x00ddff, 0.6);
+        platGfx2.fillRoundedRect(-36, -6, 72, 6, 3);
+        platGfx2.lineStyle(1, 0x00eeff, 0.8);
+        platGfx2.strokeRoundedRect(-40, -7, 80, 14, 7);
+        platGfx2.setPosition(w - 80, h * 0.43);
 
-        // Character (cyan blob with eyes) in center
-        const cx = w / 2;
-        const cy = h * 0.47;
-        // Character background glow
-        gfx.fillStyle(0x00cccc, 0.15);
-        gfx.fillRect(cx - 25, cy - 25, 50, 50);
+        this.tweens.add({
+            targets: platGfx2,
+            x: w - 70,
+            duration: 3000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Animated character blob in center
+        const charGfx = this.add.graphics();
+        const cx = 0, cy = 0;
+        // Outer glow
+        charGfx.fillStyle(0x00ffcc, 0.15);
+        charGfx.fillCircle(cx, cy + 2, 22);
         // Body
-        gfx.fillStyle(0x00ffcc, 1);
-        gfx.fillRoundedRect(cx - 18, cy - 18, 36, 36, 10);
+        charGfx.fillStyle(0x00ffcc, 1);
+        charGfx.fillCircle(cx, cy + 4, 16);
+        charGfx.fillCircle(cx, cy - 4, 13);
+        charGfx.fillStyle(0x00ffcc, 1);
+        charGfx.fillRoundedRect(cx - 14, cy - 8, 28, 22, 10);
         // Eyes
-        gfx.fillStyle(0xffffff, 1);
-        gfx.fillCircle(cx - 6, cy - 4, 6);
-        gfx.fillCircle(cx + 8, cy - 4, 6);
-        gfx.fillStyle(0x000000, 1);
-        gfx.fillCircle(cx - 4, cy - 4, 3);
-        gfx.fillCircle(cx + 10, cy - 4, 3);
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillCircle(cx - 6, cy - 2, 5);
+        charGfx.fillCircle(cx + 6, cy - 2, 5);
+        charGfx.fillStyle(0xffffff, 0.9);
+        charGfx.fillCircle(cx - 8, cy - 4, 2);
+        charGfx.fillCircle(cx + 4, cy - 4, 2);
+        charGfx.setPosition(w / 2, h * 0.48);
 
-        // Red enemy (left side, spiky)
-        const ex = 55;
-        const ey = h * 0.52;
-        gfx.fillStyle(0xff0055, 1);
-        gfx.fillCircle(ex, ey, 14);
-        // Spikes
+        // Bounce animation
+        this.tweens.add({
+            targets: charGfx,
+            y: h * 0.48 - 15,
+            duration: 600,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeOut'
+        });
+
+        // Draw enemy (red spiky) with animation
+        const enemyGfx = this.add.graphics();
+        enemyGfx.fillStyle(0xff0055, 1);
+        enemyGfx.fillCircle(0, 0, 14);
         for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
-            const sx1 = ex + Math.cos(a) * 14;
-            const sy1 = ey + Math.sin(a) * 14;
-            const sx2 = ex + Math.cos(a) * 20;
-            const sy2 = ey + Math.sin(a) * 20;
-            gfx.lineStyle(3, 0xff0055, 1);
-            gfx.lineBetween(sx1, sy1, sx2, sy2);
+            const sx1 = Math.cos(a) * 14;
+            const sy1 = Math.sin(a) * 14;
+            const sx2 = Math.cos(a) * 20;
+            const sy2 = Math.sin(a) * 20;
+            enemyGfx.lineStyle(3, 0xff0055, 1);
+            enemyGfx.lineBetween(sx1, sy1, sx2, sy2);
         }
-        // Enemy eyes
-        gfx.fillStyle(0xff3388, 1);
-        gfx.fillCircle(ex - 5, ey - 3, 3);
-        gfx.fillCircle(ex + 5, ey - 3, 3);
+        enemyGfx.fillStyle(0xff3388, 1);
+        enemyGfx.fillCircle(-5, -3, 3);
+        enemyGfx.fillCircle(5, -3, 3);
+        enemyGfx.setPosition(55, h * 0.52);
 
-        // Spring platform (center, below character)
-        const sprY = h * 0.56;
-        gfx.fillStyle(0xccaa00, 1);
-        gfx.fillRoundedRect(w / 2 - 20, sprY, 40, 10, 3);
-        gfx.fillStyle(0xffdd00, 1);
-        gfx.fillRoundedRect(w / 2 - 8, sprY - 8, 16, 10, 2);
+        // Enemy float animation
+        this.tweens.add({
+            targets: enemyGfx,
+            y: h * 0.52 - 5,
+            x: 60,
+            duration: 1500,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
 
-        // Small purple enemy near TAP TO START
-        const px = w / 2;
-        const py = h * 0.66;
-        gfx.fillStyle(0x8855aa, 1);
-        gfx.fillCircle(px, py, 8);
-        gfx.fillStyle(0xaa77cc, 1);
-        gfx.fillCircle(px - 3, py - 2, 2);
-        gfx.fillCircle(px + 3, py - 2, 2);
+        // Spring platform below character
+        const sprGfx = this.add.graphics();
+        sprGfx.fillStyle(0x00dd77, 1);
+        sprGfx.fillRoundedRect(-20, 0, 40, 10, 4);
+        sprGfx.fillStyle(0xffdd00, 1);
+        sprGfx.fillRoundedRect(-8, -8, 16, 10, 3);
+        sprGfx.setPosition(w / 2, h * 0.56);
 
-        // Small brown/red decoration to right of button area
-        gfx.fillStyle(0x885544, 0.6);
-        gfx.fillRoundedRect(w * 0.82, h * 0.71, 18, 22, 3);
+        this.tweens.add({
+            targets: sprGfx,
+            y: h * 0.56 + 3,
+            duration: 1200,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+    }
+
+    drawTrophyIcon(x, y) {
+        const gfx = this.add.graphics();
+        // Cup body
+        gfx.fillStyle(0xffdd44, 1);
+        gfx.fillRoundedRect(x - 8, y - 6, 16, 14, 3);
+        // Cup handles
+        gfx.lineStyle(2, 0xffdd44, 1);
+        gfx.strokeCircle(x - 10, y + 1, 4);
+        gfx.strokeCircle(x + 10, y + 1, 4);
+        // Base
+        gfx.fillStyle(0xffdd44, 1);
+        gfx.fillRect(x - 5, y + 8, 10, 3);
+        gfx.fillRect(x - 8, y + 11, 16, 2);
     }
 
     createStartButton(w, h) {
@@ -300,11 +399,11 @@ class MenuScene extends Phaser.Scene {
         const legendY = h * 0.93;
         const labelY = legendY + 14;
         const items = [
-            { name: 'Normal', color: 0x00ff88 },
-            { name: 'Moving', color: 0x4488ff },
-            { name: 'Break', color: 0xff4444 },
-            { name: 'Spring', color: 0xffaa00, isSpring: true },
-            { name: 'Boost', color: 0xff00ff }
+            { name: 'Normal', color: 0x00dd77, highlight: 0x00ff99 },
+            { name: 'Moving', color: 0x00aadd, highlight: 0x00ddff },
+            { name: 'Break', color: 0xcc3333, highlight: 0xff5555 },
+            { name: 'Spring', color: 0x00dd77, highlight: 0x00ff99, isSpring: true },
+            { name: 'Boost', color: 0xff00ff, highlight: 0xff66ff }
         ];
         const spacing = w / (items.length + 1);
 
@@ -314,15 +413,15 @@ class MenuScene extends Phaser.Scene {
             if (item.isSpring) {
                 // Spring icon
                 gfx.fillStyle(item.color, 1);
-                gfx.fillRoundedRect(ix - 12, legendY - 6, 8, 14, 2);
-                gfx.fillRoundedRect(ix + 4, legendY - 6, 8, 14, 2);
-                gfx.lineStyle(2, item.color, 0.8);
-                gfx.lineBetween(ix - 4, legendY - 4, ix + 4, legendY + 2);
-                gfx.lineBetween(ix - 4, legendY + 2, ix + 4, legendY + 6);
+                gfx.fillRoundedRect(ix - 16, legendY - 2, 32, 6, 3);
+                gfx.fillStyle(0xffdd00, 1);
+                gfx.fillRoundedRect(ix - 5, legendY - 8, 10, 8, 2);
             } else {
-                // Colored bar
+                // Colored bar with glow style
                 gfx.fillStyle(item.color, 1);
-                gfx.fillRoundedRect(ix - 18, legendY - 2, 36, 6, 2);
+                gfx.fillRoundedRect(ix - 18, legendY - 2, 36, 6, 3);
+                gfx.fillStyle(item.highlight, 0.6);
+                gfx.fillRoundedRect(ix - 16, legendY - 1, 32, 3, 2);
             }
 
             // Label
@@ -348,8 +447,8 @@ class MenuScene extends Phaser.Scene {
             .setStrokeStyle(2, 0x00ffcc)
             .setDepth(101);
 
-        // Title
-        const title = this.add.text(w / 2, h / 2 - popH / 2 + 25, '🎁 DAILY REWARD', {
+        // Title (no emoji)
+        const title = this.add.text(w / 2, h / 2 - popH / 2 + 25, 'DAILY REWARD', {
             fontSize: '20px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffdd44'
         }).setOrigin(0.5).setDepth(102);
 
@@ -371,14 +470,16 @@ class MenuScene extends Phaser.Scene {
                 backgroundColor: dayBg, padding: { x: 3, y: 2 }
             }).setOrigin(0.5).setDepth(102);
 
-            this.add.text(dx, calY + 18, '🪙' + dayInfo.coins, {
+            this.add.text(dx, calY + 18, dayInfo.coins + 'c', {
                 fontSize: '9px', fontFamily: 'Arial', color: '#aaaaaa'
             }).setOrigin(0.5).setDepth(102);
 
             if (isPast) {
-                this.add.text(dx, calY + 32, '✅', {
-                    fontSize: '10px'
-                }).setOrigin(0.5).setDepth(102);
+                // Draw a checkmark icon instead of emoji
+                const checkGfx = this.add.graphics().setDepth(102);
+                checkGfx.lineStyle(2, 0x00ff88, 1);
+                checkGfx.lineBetween(dx - 4, calY + 32, dx - 1, calY + 36);
+                checkGfx.lineBetween(dx - 1, calY + 36, dx + 5, calY + 28);
             }
         }
 
@@ -390,7 +491,7 @@ class MenuScene extends Phaser.Scene {
             fontSize: '22px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffffff'
         }).setOrigin(0.5).setDepth(102);
 
-        this.add.text(w / 2, infoY + 30, '🪙 ' + currentReward.coins + ' Coins', {
+        this.add.text(w / 2, infoY + 30, currentReward.coins + ' Coins', {
             fontSize: '18px', fontFamily: 'Arial', color: '#ffdd44'
         }).setOrigin(0.5).setDepth(102);
 
@@ -402,7 +503,7 @@ class MenuScene extends Phaser.Scene {
 
         // Claim or Close button
         if (rewardStatus.canClaim) {
-            const claimBtn = this.add.text(w / 2, infoY + 90, '✨ CLAIM ✨', {
+            const claimBtn = this.add.text(w / 2, infoY + 90, 'CLAIM', {
                 fontSize: '20px', fontFamily: 'Arial', fontStyle: 'bold', color: '#000000',
                 backgroundColor: '#ffdd44', padding: { x: 24, y: 8 }
             }).setOrigin(0.5).setDepth(102).setInteractive({ useHandCursor: true });
@@ -410,10 +511,10 @@ class MenuScene extends Phaser.Scene {
             claimBtn.on('pointerdown', () => {
                 const reward = UIManager.claimDailyReward();
                 AudioManager.playCoin();
-                claimBtn.setText('✅ Claimed +' + reward.coins);
+                claimBtn.setText('Claimed +' + reward.coins);
                 claimBtn.setStyle({ backgroundColor: '#44aa44' });
                 claimBtn.removeInteractive();
-                this.coinText.setText('🪙 ' + UIManager.getCoins());
+                this.coinText.setText(UIManager.getCoins());
 
                 this.time.delayedCall(1200, () => {
                     this.destroyPopup();
@@ -425,9 +526,9 @@ class MenuScene extends Phaser.Scene {
             }).setOrigin(0.5).setDepth(102);
         }
 
-        // Close button
-        const closeBtn = this.add.text(w / 2 + popW / 2 - 15, h / 2 - popH / 2 + 10, '✕', {
-            fontSize: '20px', fontFamily: 'Arial', color: '#ff4444'
+        // Close button (X text, not emoji)
+        const closeBtn = this.add.text(w / 2 + popW / 2 - 15, h / 2 - popH / 2 + 10, 'X', {
+            fontSize: '18px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ff4444'
         }).setOrigin(0.5).setDepth(102).setInteractive({ useHandCursor: true });
 
         closeBtn.on('pointerdown', () => {
@@ -477,32 +578,31 @@ class GameScene extends Phaser.Scene {
     }
 
     setupBackground(w, h) {
+        // Always dark space background with stars
+        this.cameras.main.setBackgroundColor('#050510');
+        this.bgGraphics = this.add.graphics();
+
+        // Draw stars
+        for (let i = 0; i < 80; i++) {
+            const sx = Phaser.Math.Between(0, w);
+            const sy = Phaser.Math.Between(0, h);
+            const size = Math.random() * 1.5 + 0.5;
+            this.bgGraphics.fillStyle(0xffffff, Math.random() * 0.5 + 0.2);
+            this.bgGraphics.fillCircle(sx, sy, size);
+        }
+        this.bgGraphics.setScrollFactor(0);
+
         if (this.selectedTheme === 'neon') {
-            this.cameras.main.setBackgroundColor('#0a0a2e');
-            this.bgGraphics = this.add.graphics();
-            this.bgGraphics.lineStyle(1, 0x00ffcc, 0.05);
+            // Subtle grid overlay
+            const gridGfx = this.add.graphics();
+            gridGfx.lineStyle(1, 0x00ffcc, 0.03);
             for (let x = 0; x < w; x += 40) {
-                this.bgGraphics.lineBetween(x, 0, x, h);
+                gridGfx.lineBetween(x, 0, x, h);
             }
             for (let y = 0; y < h; y += 40) {
-                this.bgGraphics.lineBetween(0, y, w, y);
+                gridGfx.lineBetween(0, y, w, y);
             }
-        } else if (this.selectedTheme === 'space') {
-            this.cameras.main.setBackgroundColor('#050515');
-            this.bgGraphics = this.add.graphics();
-            for (let i = 0; i < 50; i++) {
-                const sx = Phaser.Math.Between(0, w);
-                const sy = Phaser.Math.Between(0, h);
-                this.bgGraphics.fillStyle(0xffffff, Math.random() * 0.5 + 0.2);
-                this.bgGraphics.fillCircle(sx, sy, Math.random() * 1.5 + 0.5);
-            }
-            // Add planets
-            this.bgGraphics.fillStyle(0x334488, 0.3);
-            this.bgGraphics.fillCircle(w * 0.8, h * 0.2, 30);
-            this.bgGraphics.fillStyle(0x884433, 0.2);
-            this.bgGraphics.fillCircle(w * 0.15, h * 0.6, 20);
-        } else {
-            this.cameras.main.setBackgroundColor('#e8e8e0');
+            gridGfx.setScrollFactor(0);
         }
     }
 
@@ -553,15 +653,59 @@ class GameScene extends Phaser.Scene {
     }
 
     setupUI(w, h) {
-        const textColor = this.selectedTheme === 'classic' ? '#333333' : '#ffffff';
+        // Death counter (initialize)
+        this.deathCount = 0;
 
-        this.scoreText = this.add.text(10, 10, 'Score: 0', {
-            fontSize: '18px', fontFamily: 'Arial', fontStyle: 'bold', color: textColor
+        // Score - large cyan number, top-left
+        this.scoreText = this.add.text(15, 15, '0', {
+            fontSize: '32px', fontFamily: 'Arial', fontStyle: 'bold', color: '#00ffcc',
+            shadow: { offsetX: 0, offsetY: 0, color: '#00ffcc', blur: 10, fill: true }
         }).setScrollFactor(0).setDepth(20);
 
-        this.levelText = this.add.text(w - 10, 10, 'Level 1', {
-            fontSize: '14px', fontFamily: 'Arial', color: textColor
+        // Best score - yellow text on cyan bg, top-right
+        const best = UIManager.getBestScore();
+        const bestBg = this.add.graphics().setScrollFactor(0).setDepth(19);
+        bestBg.fillStyle(0x00aaaa, 0.6);
+        bestBg.fillRoundedRect(w - 145, 10, 140, 28, 6);
+        bestBg.lineStyle(1, 0x00ffcc, 0.8);
+        bestBg.strokeRoundedRect(w - 145, 10, 140, 28, 6);
+
+        this.bestText = this.add.text(w - 75, 24, 'BEST: ' + best.toLocaleString(), {
+            fontSize: '13px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffdd44'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(20);
+
+        // Level text (smaller, below best)
+        this.levelText = this.add.text(w - 10, 42, 'Level 1', {
+            fontSize: '11px', fontFamily: 'Arial', color: '#888888'
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(20);
+
+        // Skull icon + death count - bottom-left (drawn skull icon)
+        this.skullGfx = this.add.graphics().setScrollFactor(0).setDepth(20);
+        this.drawSkullIcon(this.skullGfx, 18, h - 22);
+
+        this.deathText = this.add.text(34, h - 30, '0', {
+            fontSize: '14px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffffff'
+        }).setScrollFactor(0).setDepth(20);
+    }
+
+    drawSkullIcon(gfx, x, y) {
+        // Skull head
+        gfx.fillStyle(0xcccccc, 1);
+        gfx.fillCircle(x, y - 3, 8);
+        // Jaw
+        gfx.fillStyle(0xcccccc, 1);
+        gfx.fillRoundedRect(x - 6, y + 1, 12, 6, 2);
+        // Eyes
+        gfx.fillStyle(0x333333, 1);
+        gfx.fillCircle(x - 3, y - 4, 2.5);
+        gfx.fillCircle(x + 3, y - 4, 2.5);
+        // Nose
+        gfx.fillStyle(0x333333, 1);
+        gfx.fillTriangle(x - 1, y, x + 1, y, x, y + 2);
+        // Teeth lines
+        gfx.lineStyle(1, 0x333333, 0.8);
+        gfx.lineBetween(x - 2, y + 2, x - 2, y + 6);
+        gfx.lineBetween(x + 2, y + 2, x + 2, y + 6);
     }
 
     setupControls(w, h) {
@@ -575,9 +719,11 @@ class GameScene extends Phaser.Scene {
         // Left button
         const leftBtn = this.add.rectangle(btnSize / 2 + 10, btnY, btnSize, btnSize, 0xffffff, btnAlpha)
             .setScrollFactor(0).setDepth(30).setInteractive();
-        this.add.text(btnSize / 2 + 10, btnY, '◀', {
-            fontSize: '24px', color: '#ffffff'
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(31);
+        // Draw left arrow icon
+        const leftArrow = this.add.graphics().setScrollFactor(0).setDepth(31);
+        const lx = btnSize / 2 + 10, ly = btnY;
+        leftArrow.fillStyle(0xffffff, 0.8);
+        leftArrow.fillTriangle(lx - 10, ly, lx + 5, ly - 8, lx + 5, ly + 8);
 
         leftBtn.on('pointerdown', () => { this.touchLeft = true; });
         leftBtn.on('pointerup', () => { this.touchLeft = false; });
@@ -586,9 +732,11 @@ class GameScene extends Phaser.Scene {
         // Right button
         const rightBtn = this.add.rectangle(w - btnSize / 2 - 10, btnY, btnSize, btnSize, 0xffffff, btnAlpha)
             .setScrollFactor(0).setDepth(30).setInteractive();
-        this.add.text(w - btnSize / 2 - 10, btnY, '▶', {
-            fontSize: '24px', color: '#ffffff'
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(31);
+        // Draw right arrow icon
+        const rightArrow = this.add.graphics().setScrollFactor(0).setDepth(31);
+        const rx = w - btnSize / 2 - 10, ry = btnY;
+        rightArrow.fillStyle(0xffffff, 0.8);
+        rightArrow.fillTriangle(rx + 10, ry, rx - 5, ry - 8, rx - 5, ry + 8);
 
         rightBtn.on('pointerdown', () => { this.touchRight = true; });
         rightBtn.on('pointerup', () => { this.touchRight = false; });
@@ -621,7 +769,7 @@ class GameScene extends Phaser.Scene {
             this.score += Math.floor((this.highestY - playerWorldY) * 0.1);
             this.highestY = playerWorldY;
         }
-        this.scoreText.setText('Score: ' + this.score);
+        this.scoreText.setText(this.score);
 
         // Update level based on score
         const newLevel = LevelConfig.getCurrentLevelForScore(this.score);
@@ -840,6 +988,12 @@ class GameScene extends Phaser.Scene {
 
         AudioManager.playGameOver();
 
+        // Increment death counter
+        this.deathCount++;
+        if (this.deathText) {
+            this.deathText.setText(this.deathCount);
+        }
+
         const bestScore = UIManager.getBestScore();
         if (this.score > bestScore) {
             UIManager.setBestScore(this.score);
@@ -875,29 +1029,30 @@ class GameOverScene extends Phaser.Scene {
         const w = this.scale.width;
         const h = this.scale.height;
 
-        if (this.selectedTheme === 'neon') {
-            this.cameras.main.setBackgroundColor('#0a0a2e');
-        } else if (this.selectedTheme === 'space') {
-            this.cameras.main.setBackgroundColor('#050515');
-        } else {
-            this.cameras.main.setBackgroundColor('#e8e8e0');
-        }
+        // Always dark background
+        this.cameras.main.setBackgroundColor('#050510');
 
-        const titleColor = this.selectedTheme === 'classic' ? '#cc3333' : '#ff4444';
-        const textColor = this.selectedTheme === 'classic' ? '#333333' : '#ffffff';
+        // Draw stars
+        const starGfx = this.add.graphics();
+        for (let i = 0; i < 60; i++) {
+            const sx = Phaser.Math.Between(0, w);
+            const sy = Phaser.Math.Between(0, h);
+            starGfx.fillStyle(0xffffff, Math.random() * 0.5 + 0.2);
+            starGfx.fillCircle(sx, sy, Math.random() * 1.5 + 0.5);
+        }
 
         this.add.text(w / 2, h * 0.2, 'GAME OVER', {
             fontSize: Math.min(42, w * 0.09) + 'px',
             fontFamily: 'Arial, sans-serif',
             fontStyle: 'bold',
-            color: titleColor,
+            color: '#ff4444',
             stroke: '#000000',
             strokeThickness: 2,
-            shadow: { offsetX: 0, offsetY: 0, color: titleColor, blur: 15, fill: true }
+            shadow: { offsetX: 0, offsetY: 0, color: '#ff4444', blur: 15, fill: true }
         }).setOrigin(0.5);
 
         this.add.text(w / 2, h * 0.35, 'Score: ' + this.finalScore, {
-            fontSize: '28px', fontFamily: 'Arial', fontStyle: 'bold', color: textColor
+            fontSize: '28px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffffff'
         }).setOrigin(0.5);
 
         this.add.text(w / 2, h * 0.43, 'Best: ' + this.bestScore, {
@@ -905,9 +1060,19 @@ class GameOverScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         if (this.finalScore >= this.bestScore && this.finalScore > 0) {
-            this.add.text(w / 2, h * 0.50, '🏆 NEW RECORD!', {
-                fontSize: '18px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffaa00'
-            }).setOrigin(0.5);
+            // Draw trophy icon instead of emoji
+            const trophyGfx = this.add.graphics();
+            trophyGfx.fillStyle(0xffdd44, 1);
+            trophyGfx.fillRoundedRect(w / 2 - 8, h * 0.50 - 8, 16, 14, 3);
+            trophyGfx.lineStyle(2, 0xffdd44, 1);
+            trophyGfx.strokeCircle(w / 2 - 10, h * 0.50 - 1, 4);
+            trophyGfx.strokeCircle(w / 2 + 10, h * 0.50 - 1, 4);
+            trophyGfx.fillRect(w / 2 - 5, h * 0.50 + 6, 10, 3);
+            trophyGfx.fillRect(w / 2 - 8, h * 0.50 + 9, 16, 2);
+
+            this.add.text(w / 2 + 20, h * 0.50, 'NEW RECORD!', {
+                fontSize: '16px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffaa00'
+            }).setOrigin(0, 0.5);
         }
 
         // Level reached
@@ -916,8 +1081,18 @@ class GameOverScene extends Phaser.Scene {
             fontSize: '16px', fontFamily: 'Arial', color: '#aaaaaa'
         }).setOrigin(0.5);
 
-        // Restart button
-        const restartBtn = this.add.text(w / 2, h * 0.68, '🔄  RESTART', {
+        // Restart button (drawn icon instead of emoji)
+        const restartGfx = this.add.graphics();
+        // Draw circular arrow icon
+        restartGfx.lineStyle(3, 0x00ff88, 1);
+        restartGfx.beginPath();
+        restartGfx.arc(w / 2 - 60, h * 0.68, 8, -0.5, 4.5, false);
+        restartGfx.strokePath();
+        // Arrow head
+        restartGfx.fillStyle(0x00ff88, 1);
+        restartGfx.fillTriangle(w / 2 - 55, h * 0.68 - 10, w / 2 - 52, h * 0.68 - 4, w / 2 - 58, h * 0.68 - 4);
+
+        const restartBtn = this.add.text(w / 2 + 10, h * 0.68, 'RESTART', {
             fontSize: '22px', fontFamily: 'Arial', fontStyle: 'bold', color: '#00ff88',
             backgroundColor: 'rgba(0,0,0,0.4)', padding: { x: 24, y: 12 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
@@ -931,8 +1106,14 @@ class GameOverScene extends Phaser.Scene {
             });
         });
 
-        // Menu button
-        const menuBtn = this.add.text(w / 2, h * 0.80, '🏠  MENU', {
+        // Menu button (drawn icon instead of emoji)
+        const homeGfx = this.add.graphics();
+        // Draw house icon
+        homeGfx.fillStyle(0x4488ff, 1);
+        homeGfx.fillTriangle(w / 2 - 52, h * 0.80 - 2, w / 2 - 42, h * 0.80 - 10, w / 2 - 32, h * 0.80 - 2);
+        homeGfx.fillRect(w / 2 - 49, h * 0.80 - 2, 14, 10);
+
+        const menuBtn = this.add.text(w / 2 + 10, h * 0.80, 'MENU', {
             fontSize: '18px', fontFamily: 'Arial', fontStyle: 'bold', color: '#4488ff',
             backgroundColor: 'rgba(0,0,0,0.4)', padding: { x: 24, y: 10 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
