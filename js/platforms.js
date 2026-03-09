@@ -137,9 +137,10 @@ const PlatformManager = {
 
     updateMovingPlatforms(scene) {
         const gameWidth = scene.scale.width;
+        const dt = scene.game.loop.delta / 1000;
         scene.platforms.children.iterate((platform) => {
             if (platform && platform.platformType === 'moving') {
-                platform.x += platform.moveDir * platform.moveSpeed * (1 / 60);
+                platform.x += platform.moveDir * platform.moveSpeed * dt;
                 platform.body.updateFromGameObject();
                 if (platform.x < 40 || platform.x > gameWidth - 40) {
                     platform.moveDir *= -1;

@@ -28,7 +28,9 @@ const UIManager = {
     save(key, value) {
         try {
             localStorage.setItem(key, JSON.stringify(value));
-        } catch (e) { /* ignore */ }
+        } catch (e) {
+            console.warn('Failed to save to localStorage:', key, e.message);
+        }
     },
 
     load(key, defaultValue) {
@@ -36,6 +38,7 @@ const UIManager = {
             const val = localStorage.getItem(key);
             return val !== null ? JSON.parse(val) : defaultValue;
         } catch (e) {
+            console.warn('Failed to load from localStorage:', key, e.message);
             return defaultValue;
         }
     },

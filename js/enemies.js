@@ -48,9 +48,10 @@ const EnemyManager = {
 
     updateEnemies(scene) {
         const gameWidth = scene.scale.width;
+        const dt = scene.game.loop.delta / 1000;
         scene.enemies.children.iterate((enemy) => {
             if (enemy) {
-                enemy.x += enemy.moveDir * enemy.moveSpeed * (1 / 60);
+                enemy.x += enemy.moveDir * enemy.moveSpeed * dt;
                 enemy.body.updateFromGameObject();
                 if (enemy.x < 20 || enemy.x > gameWidth - 20) {
                     enemy.moveDir *= -1;

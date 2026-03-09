@@ -10,7 +10,7 @@ Neon Jump is a vertical endless jumping game where the player controls a charact
 
 ### Core Gameplay
 - Automatic upward jumping with platform-based progression
-- 6 platform types: static, moving, breakable, and spring boost
+- 4 platform types: static, moving, breakable, and spring boost
 - Enemy obstacles with stomping mechanic
 - Power-ups: jetpack and shield
 - Score based on height climbed

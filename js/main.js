@@ -432,7 +432,7 @@ class MenuScene extends Phaser.Scene {
                 this.coinText.setText('🪙 ' + UIManager.getCoins());
 
                 this.time.delayedCall(1200, () => {
-                    this.destroyPopup(overlay, popBg, title);
+                    this.destroyPopup();
                 });
             });
         } else {
@@ -447,12 +447,12 @@ class MenuScene extends Phaser.Scene {
         }).setOrigin(0.5).setDepth(102).setInteractive({ useHandCursor: true });
 
         closeBtn.on('pointerdown', () => {
-            this.destroyPopup(overlay, popBg, title);
+            this.destroyPopup();
         });
     }
 
-    destroyPopup(overlay) {
-        // Remove all depth 100+ objects
+    destroyPopup() {
+        // Remove all depth 100+ objects (popup elements)
         this.children.list.filter(c => c.depth >= 100).forEach(c => c.destroy());
     }
 }
@@ -525,7 +525,7 @@ class GameScene extends Phaser.Scene {
     setupPhysics(w, h) {
         const gravity = this.selectedTheme === 'space' ? 700 : 900;
         this.physics.world.gravity.y = gravity;
-        this.physics.world.setBounds(0, -Infinity, w, Infinity);
+        this.physics.world.setBounds(0, -999999, w, 1999999);
     }
 
     setupTextures() {
