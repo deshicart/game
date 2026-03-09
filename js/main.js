@@ -1,4 +1,4 @@
-// main.js - Neon Jump Game Entry Point
+// main.js - Neon Leap Game Entry Point
 
 // ============================================================
 // AUDIO MANAGER - Generate sounds using Web Audio API
@@ -127,226 +127,210 @@ class MenuScene extends Phaser.Scene {
     create() {
         const w = this.scale.width;
         const h = this.scale.height;
-        const theme = UIManager.getSelectedTheme();
 
-        this.drawBackground(theme, w, h);
+        // Always dark starry background for menu
+        this.cameras.main.setBackgroundColor('#0a0a2e');
+        this.drawMenuBackground(w, h);
 
-        // Title
+        // Decorative game elements (platforms, character, enemy)
+        this.drawDecorativeElements(w, h);
+
+        // Title "NEON LEAP"
         const titleStyle = {
-            fontSize: Math.min(48, w * 0.1) + 'px',
+            fontSize: Math.min(72, w * 0.18) + 'px',
             fontFamily: 'Arial, sans-serif',
             fontStyle: 'bold',
             color: '#00ffcc',
             stroke: '#004444',
-            strokeThickness: 4,
-            shadow: { offsetX: 0, offsetY: 0, color: '#00ffcc', blur: 20, fill: true }
+            strokeThickness: 3,
+            shadow: { offsetX: 0, offsetY: 0, color: '#00ffcc', blur: 25, fill: true }
         };
-        this.add.text(w / 2, h * 0.1, 'NEON JUMP', titleStyle).setOrigin(0.5);
+        this.add.text(w / 2, h * 0.1, 'NEON', titleStyle).setOrigin(0.5);
+        this.add.text(w / 2, h * 0.2, 'LEAP', titleStyle).setOrigin(0.5);
 
-        // Coin display
-        const coins = UIManager.getCoins();
-        this.coinText = this.add.text(w - 15, 15, '🪙 ' + coins, {
-            fontSize: '18px', fontFamily: 'Arial', color: '#ffdd44'
-        }).setOrigin(1, 0);
+        // Tagline
+        this.add.text(w / 2, h * 0.37, 'Jump. Survive. Ascend.', {
+            fontSize: '16px', fontFamily: 'Arial, sans-serif', color: '#8899aa'
+        }).setOrigin(0.5);
 
         // Best score
         const best = UIManager.getBestScore();
-        this.add.text(w / 2, h * 0.17, 'Best: ' + best, {
-            fontSize: '16px', fontFamily: 'Arial', color: '#aaaaaa'
+        const bestStr = best.toLocaleString();
+        this.add.text(w / 2, h * 0.6, '🏆 BEST: ' + bestStr, {
+            fontSize: '20px', fontFamily: 'Arial, sans-serif', fontStyle: 'bold',
+            color: '#ffdd44',
+            shadow: { offsetX: 0, offsetY: 0, color: '#ffaa00', blur: 10, fill: true }
         }).setOrigin(0.5);
 
-        // Play button
-        this.createButton(w / 2, h * 0.28, '▶  PLAY', '#00ff88', () => {
+        // TAP TO START button
+        this.createStartButton(w, h);
+
+        // Warning
+        this.add.text(w / 2, h * 0.8, '⚠ Stomp enemies from above to kill!', {
+            fontSize: '13px', fontFamily: 'Arial, sans-serif', color: '#ffaa44'
+        }).setOrigin(0.5);
+
+        // Controls info
+        this.add.text(w / 2, h * 0.86, '← → keys  |  Tap sides  |  Tilt phone', {
+            fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#556677'
+        }).setOrigin(0.5);
+
+        // Platform legend
+        this.drawPlatformLegend(w, h);
+    }
+
+    drawMenuBackground(w, h) {
+        const gfx = this.add.graphics();
+        // Stars
+        for (let i = 0; i < 80; i++) {
+            const sx = Phaser.Math.Between(0, w);
+            const sy = Phaser.Math.Between(0, h);
+            const size = Math.random() * 1.5 + 0.5;
+            gfx.fillStyle(0xffffff, Math.random() * 0.5 + 0.2);
+            gfx.fillCircle(sx, sy, size);
+        }
+    }
+
+    drawDecorativeElements(w, h) {
+        const gfx = this.add.graphics();
+
+        // Green static platform (top-left area)
+        gfx.fillStyle(0x00ffcc, 1);
+        gfx.fillRoundedRect(15, h * 0.3, 95, 12, 4);
+        gfx.lineStyle(1, 0x00ffff, 0.6);
+        gfx.strokeRoundedRect(15, h * 0.3, 95, 12, 4);
+
+        // Blue moving platform (right side)
+        gfx.fillStyle(0x4488ff, 1);
+        gfx.fillRoundedRect(w - 120, h * 0.43, 90, 12, 4);
+        gfx.lineStyle(1, 0x66aaff, 0.6);
+        gfx.strokeRoundedRect(w - 120, h * 0.43, 90, 12, 4);
+
+        // Character (cyan blob with eyes) in center
+        const cx = w / 2;
+        const cy = h * 0.47;
+        // Character background glow
+        gfx.fillStyle(0x00cccc, 0.15);
+        gfx.fillRect(cx - 25, cy - 25, 50, 50);
+        // Body
+        gfx.fillStyle(0x00ffcc, 1);
+        gfx.fillRoundedRect(cx - 18, cy - 18, 36, 36, 10);
+        // Eyes
+        gfx.fillStyle(0xffffff, 1);
+        gfx.fillCircle(cx - 6, cy - 4, 6);
+        gfx.fillCircle(cx + 8, cy - 4, 6);
+        gfx.fillStyle(0x000000, 1);
+        gfx.fillCircle(cx - 4, cy - 4, 3);
+        gfx.fillCircle(cx + 10, cy - 4, 3);
+
+        // Red enemy (left side, spiky)
+        const ex = 55;
+        const ey = h * 0.52;
+        gfx.fillStyle(0xff0055, 1);
+        gfx.fillCircle(ex, ey, 14);
+        // Spikes
+        for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+            const sx1 = ex + Math.cos(a) * 14;
+            const sy1 = ey + Math.sin(a) * 14;
+            const sx2 = ex + Math.cos(a) * 20;
+            const sy2 = ey + Math.sin(a) * 20;
+            gfx.lineStyle(3, 0xff0055, 1);
+            gfx.lineBetween(sx1, sy1, sx2, sy2);
+        }
+        // Enemy eyes
+        gfx.fillStyle(0xff3388, 1);
+        gfx.fillCircle(ex - 5, ey - 3, 3);
+        gfx.fillCircle(ex + 5, ey - 3, 3);
+
+        // Spring platform (center, below character)
+        const sprY = h * 0.56;
+        gfx.fillStyle(0xccaa00, 1);
+        gfx.fillRoundedRect(w / 2 - 20, sprY, 40, 10, 3);
+        gfx.fillStyle(0xffdd00, 1);
+        gfx.fillRoundedRect(w / 2 - 8, sprY - 8, 16, 10, 2);
+
+        // Small purple enemy near TAP TO START
+        const px = w / 2;
+        const py = h * 0.66;
+        gfx.fillStyle(0x8855aa, 1);
+        gfx.fillCircle(px, py, 8);
+        gfx.fillStyle(0xaa77cc, 1);
+        gfx.fillCircle(px - 3, py - 2, 2);
+        gfx.fillCircle(px + 3, py - 2, 2);
+
+        // Small brown/red decoration to right of button area
+        gfx.fillStyle(0x885544, 0.6);
+        gfx.fillRoundedRect(w * 0.82, h * 0.71, 18, 22, 3);
+    }
+
+    createStartButton(w, h) {
+        const btnW = 220;
+        const btnH = 52;
+        const btnX = w / 2;
+        const btnY = h * 0.71;
+
+        // Button background (rounded green rectangle)
+        const gfx = this.add.graphics();
+        gfx.fillStyle(0x3ddc84, 1);
+        gfx.fillRoundedRect(btnX - btnW / 2, btnY - btnH / 2, btnW, btnH, 14);
+
+        // Button text
+        this.add.text(btnX, btnY, 'TAP  TO  START', {
+            fontSize: '24px', fontFamily: 'Arial, sans-serif', fontStyle: 'bold',
+            color: '#000000'
+        }).setOrigin(0.5);
+
+        // Invisible interactive area
+        const hitArea = this.add.rectangle(btnX, btnY, btnW, btnH, 0x000000, 0)
+            .setInteractive({ useHandCursor: true });
+
+        hitArea.on('pointerover', () => gfx.setScale(1.03));
+        hitArea.on('pointerout', () => gfx.setScale(1));
+        hitArea.on('pointerdown', () => {
             AudioManager.resume();
             this.scene.start('GameScene', {
                 character: UIManager.getSelectedCharacter(),
                 theme: UIManager.getSelectedTheme()
             });
         });
-
-        // Character selection
-        this.add.text(w / 2, h * 0.38, 'CHARACTER', {
-            fontSize: '14px', fontFamily: 'Arial', color: '#888888'
-        }).setOrigin(0.5);
-
-        this.createCharacterSelection(w, h);
-
-        // Theme selection
-        this.add.text(w / 2, h * 0.58, 'THEME', {
-            fontSize: '14px', fontFamily: 'Arial', color: '#888888'
-        }).setOrigin(0.5);
-
-        this.createThemeSelection(w, h);
-
-        // Level info
-        this.add.text(w / 2, h * 0.78, 'LEVELS', {
-            fontSize: '14px', fontFamily: 'Arial', color: '#888888'
-        }).setOrigin(0.5);
-
-        this.createLevelDisplay(w, h);
-
-        // Daily reward button
-        this.createButton(w / 2, h * 0.93, '🎁 Daily Reward', '#ffaa00', () => {
-            this.showDailyReward(w, h);
-        }, 14);
-
-        // Check and auto-show daily reward
-        const rewardStatus = UIManager.checkDailyReward();
-        if (rewardStatus.canClaim) {
-            this.time.delayedCall(500, () => {
-                this.showDailyReward(w, h);
-            });
-        }
     }
 
-    drawBackground(theme, w, h) {
-        if (theme === 'neon') {
-            this.cameras.main.setBackgroundColor('#0a0a2e');
-            // Add neon grid lines
-            const gfx = this.add.graphics();
-            gfx.lineStyle(1, 0x00ffcc, 0.08);
-            for (let x = 0; x < w; x += 40) {
-                gfx.lineBetween(x, 0, x, h);
-            }
-            for (let y = 0; y < h; y += 40) {
-                gfx.lineBetween(0, y, w, y);
-            }
-        } else if (theme === 'space') {
-            this.cameras.main.setBackgroundColor('#050515');
-            const gfx = this.add.graphics();
-            for (let i = 0; i < 60; i++) {
-                const sx = Phaser.Math.Between(0, w);
-                const sy = Phaser.Math.Between(0, h);
-                const size = Math.random() * 2 + 0.5;
-                gfx.fillStyle(0xffffff, Math.random() * 0.6 + 0.2);
-                gfx.fillCircle(sx, sy, size);
-            }
-        } else {
-            this.cameras.main.setBackgroundColor('#e8e8e0');
-        }
-    }
-
-    createButton(x, y, text, color, callback, fontSize) {
-        const fs = fontSize || 20;
-        const btn = this.add.text(x, y, text, {
-            fontSize: fs + 'px',
-            fontFamily: 'Arial, sans-serif',
-            fontStyle: 'bold',
-            color: color,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            padding: { x: 24, y: 10 }
-        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-        btn.on('pointerover', () => btn.setScale(1.05));
-        btn.on('pointerout', () => btn.setScale(1));
-        btn.on('pointerdown', callback);
-        return btn;
-    }
-
-    createCharacterSelection(w, h) {
-        const selected = UIManager.getSelectedCharacter();
-        const owned = UIManager.getOwnedCharacters();
-        const chars = PlayerManager.characters;
-        const spacing = w / (chars.length + 1);
-
-        chars.forEach((char, i) => {
-            const x = spacing * (i + 1);
-            const y = h * 0.45;
-            const isOwned = owned.includes(char.id);
-            const isSelected = char.id === selected;
-
-            const bgColor = isSelected ? 'rgba(0,255,200,0.25)' : 'rgba(255,255,255,0.08)';
-            const textColor = isOwned ? '#ffffff' : '#666666';
-            const label = isOwned ? char.name : char.name + '\n🪙' + char.cost;
-
-            const btn = this.add.text(x, y, label, {
-                fontSize: '12px',
-                fontFamily: 'Arial',
-                color: textColor,
-                backgroundColor: bgColor,
-                padding: { x: 8, y: 6 },
-                align: 'center'
-            }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-            if (isSelected) {
-                btn.setStyle({ stroke: '#00ffcc', strokeThickness: 1 });
-            }
-
-            btn.on('pointerdown', () => {
-                if (isOwned) {
-                    UIManager.setSelectedCharacter(char.id);
-                    this.scene.restart();
-                } else {
-                    const coins = UIManager.getCoins();
-                    if (coins >= char.cost) {
-                        UIManager.setCoins(coins - char.cost);
-                        UIManager.addOwnedCharacter(char.id);
-                        UIManager.setSelectedCharacter(char.id);
-                        AudioManager.playCoin();
-                        this.scene.restart();
-                    }
-                }
-            });
-        });
-    }
-
-    createThemeSelection(w, h) {
-        const themes = [
-            { id: 'classic', name: 'Classic', color: '#44bb44' },
-            { id: 'neon', name: 'Neon', color: '#00ffcc' },
-            { id: 'space', name: 'Space', color: '#8888ff' }
+    drawPlatformLegend(w, h) {
+        const gfx = this.add.graphics();
+        const legendY = h * 0.93;
+        const labelY = legendY + 14;
+        const items = [
+            { name: 'Normal', color: 0x00ff88 },
+            { name: 'Moving', color: 0x4488ff },
+            { name: 'Break', color: 0xff4444 },
+            { name: 'Spring', color: 0xffaa00, isSpring: true },
+            { name: 'Boost', color: 0xff00ff }
         ];
-        const selected = UIManager.getSelectedTheme();
-        const spacing = w / (themes.length + 1);
+        const spacing = w / (items.length + 1);
 
-        themes.forEach((theme, i) => {
-            const x = spacing * (i + 1);
-            const y = h * 0.65;
-            const isSelected = theme.id === selected;
-            const bgColor = isSelected ? 'rgba(0,255,200,0.25)' : 'rgba(255,255,255,0.08)';
+        items.forEach((item, i) => {
+            const ix = spacing * (i + 1);
 
-            const btn = this.add.text(x, y, theme.name, {
-                fontSize: '14px',
-                fontFamily: 'Arial',
-                fontStyle: 'bold',
-                color: theme.color,
-                backgroundColor: bgColor,
-                padding: { x: 12, y: 6 }
-            }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-            if (isSelected) {
-                btn.setStyle({ stroke: theme.color, strokeThickness: 1 });
+            if (item.isSpring) {
+                // Spring icon
+                gfx.fillStyle(item.color, 1);
+                gfx.fillRoundedRect(ix - 12, legendY - 6, 8, 14, 2);
+                gfx.fillRoundedRect(ix + 4, legendY - 6, 8, 14, 2);
+                gfx.lineStyle(2, item.color, 0.8);
+                gfx.lineBetween(ix - 4, legendY - 4, ix + 4, legendY + 2);
+                gfx.lineBetween(ix - 4, legendY + 2, ix + 4, legendY + 6);
+            } else {
+                // Colored bar
+                gfx.fillStyle(item.color, 1);
+                gfx.fillRoundedRect(ix - 18, legendY - 2, 36, 6, 2);
             }
 
-            btn.on('pointerdown', () => {
-                UIManager.setSelectedTheme(theme.id);
-                this.scene.restart();
-            });
+            // Label
+            this.add.text(ix, labelY, item.name, {
+                fontSize: '10px', fontFamily: 'Arial, sans-serif',
+                color: '#8899aa'
+            }).setOrigin(0.5, 0);
         });
-    }
-
-    createLevelDisplay(w, h) {
-        const best = UIManager.getBestScore();
-        const unlocked = LevelConfig.getUnlockedLevels(best);
-        const y = h * 0.84;
-        const totalLevels = LevelConfig.levels.length;
-        const spacing = Math.min(30, (w - 40) / totalLevels);
-        const startX = w / 2 - (totalLevels - 1) * spacing / 2;
-
-        for (let i = 0; i < totalLevels; i++) {
-            const level = LevelConfig.levels[i];
-            const isUnlocked = best >= level.unlockScore;
-            const lx = startX + i * spacing;
-
-            this.add.text(lx, y, (i + 1).toString(), {
-                fontSize: '13px',
-                fontFamily: 'Arial',
-                fontStyle: 'bold',
-                color: isUnlocked ? '#00ff88' : '#444444',
-                backgroundColor: isUnlocked ? 'rgba(0,255,136,0.15)' : 'rgba(255,255,255,0.05)',
-                padding: { x: 4, y: 2 }
-            }).setOrigin(0.5);
-        }
     }
 
     showDailyReward(w, h) {
