@@ -273,22 +273,33 @@ class MenuScene extends Phaser.Scene {
         // Animated character blob in center
         const charGfx = this.add.graphics();
         const cx = 0, cy = 0;
-        // Outer glow
-        charGfx.fillStyle(0x00ffcc, 0.15);
-        charGfx.fillCircle(cx, cy + 2, 22);
-        // Body
+        // Soft outer glow
+        charGfx.fillStyle(0x00ffcc, 0.12);
+        charGfx.fillCircle(cx, cy + 2, 20);
+        // Body - wide round blob
         charGfx.fillStyle(0x00ffcc, 1);
-        charGfx.fillCircle(cx, cy + 4, 16);
-        charGfx.fillCircle(cx, cy - 4, 13);
+        charGfx.fillCircle(cx, cy + 6, 15);
+        // Head
         charGfx.fillStyle(0x00ffcc, 1);
-        charGfx.fillRoundedRect(cx - 14, cy - 8, 28, 22, 10);
-        // Eyes
+        charGfx.fillCircle(cx, cy - 4, 14);
+        // Smooth neck
+        charGfx.fillStyle(0x00ffcc, 1);
+        charGfx.fillRect(cx - 13, cy - 4, 26, 12);
+        // Small feet
+        charGfx.fillStyle(0x00ffcc, 1);
+        charGfx.fillCircle(cx - 7, cy + 18, 5);
+        charGfx.fillCircle(cx + 7, cy + 18, 5);
+        // Eyes - large, dark, expressive
         charGfx.fillStyle(0x222222, 1);
-        charGfx.fillCircle(cx - 6, cy - 2, 5);
-        charGfx.fillCircle(cx + 6, cy - 2, 5);
-        charGfx.fillStyle(0xffffff, 0.9);
-        charGfx.fillCircle(cx - 8, cy - 4, 2);
-        charGfx.fillCircle(cx + 4, cy - 4, 2);
+        charGfx.fillCircle(cx - 6, cy - 3, 6);
+        charGfx.fillCircle(cx + 6, cy - 3, 6);
+        // Eye highlights
+        charGfx.fillStyle(0xffffff, 1);
+        charGfx.fillCircle(cx - 8, cy - 5, 2.5);
+        charGfx.fillCircle(cx + 4, cy - 5, 2.5);
+        charGfx.fillStyle(0xffffff, 0.6);
+        charGfx.fillCircle(cx - 4, cy - 1, 1);
+        charGfx.fillCircle(cx + 8, cy - 1, 1);
         charGfx.setPosition(w / 2, h * 0.48);
 
         // Bounce animation
@@ -1135,6 +1146,10 @@ const config = {
     width: 400,
     height: 700,
     backgroundColor: '#0a0a2e',
+    fps: {
+        target: 30,
+        forceSetTimeOut: true
+    },
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH

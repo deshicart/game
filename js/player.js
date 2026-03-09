@@ -75,36 +75,46 @@ const PlayerManager = {
             gfx.lineStyle(1, c.outline, 0.6);
             gfx.lineBetween(6, 20, 26, 20);
         } else {
-            // Classic Hero - Cute cyan blob with big eyes
-            // Outer glow
-            gfx.fillStyle(c.body, 0.15);
-            gfx.fillCircle(16, 18, 18);
-            // Body - rounded blob shape
+            // Classic Hero - Cute round blob character (Doodle Jump style)
+            // Soft outer glow
+            gfx.fillStyle(c.body, 0.12);
+            gfx.fillCircle(16, 18, 17);
+            // Main body - wide round blob
             gfx.fillStyle(c.body, 1);
-            gfx.fillCircle(16, 20, 14);
-            gfx.fillCircle(16, 12, 11);
-            // Smooth connection
+            gfx.fillCircle(16, 22, 13);
+            // Head - slightly smaller circle overlapping body
             gfx.fillStyle(c.body, 1);
-            gfx.fillRoundedRect(4, 10, 24, 18, 8);
-            // Eyes - big cute dark eyes
+            gfx.fillCircle(16, 12, 12);
+            // Smooth neck connection
+            gfx.fillStyle(c.body, 1);
+            gfx.fillRect(5, 12, 22, 12);
+            // Small feet/bumps at the bottom
+            gfx.fillStyle(c.body, 1);
+            gfx.fillCircle(10, 33, 4);
+            gfx.fillCircle(22, 33, 4);
+            // Eyes - large, dark, expressive
             gfx.fillStyle(c.pupil, 1);
-            gfx.fillCircle(11, 14, 4);
-            gfx.fillCircle(21, 14, 4);
-            // Eye highlights (white reflection dots)
-            gfx.fillStyle(c.eye, 0.9);
-            gfx.fillCircle(9, 12, 1.5);
-            gfx.fillCircle(19, 12, 1.5);
+            gfx.fillCircle(11, 13, 5);
+            gfx.fillCircle(21, 13, 5);
+            // Eye highlights (white reflection spots - top-left of each eye)
+            gfx.fillStyle(c.eye, 1);
+            gfx.fillCircle(9, 11, 2);
+            gfx.fillCircle(19, 11, 2);
+            // Smaller secondary highlight
+            gfx.fillStyle(c.eye, 0.6);
+            gfx.fillCircle(13, 15, 1);
+            gfx.fillCircle(23, 15, 1);
         }
 
-        gfx.generateTexture('player', 32, 36);
+        gfx.generateTexture('player', 32, 38);
         gfx.destroy();
     },
 
     createPlayer(scene, x, y) {
         const player = scene.physics.add.sprite(x, y, 'player');
         player.setCollideWorldBounds(true);
-        player.body.setSize(20, 30);
-        player.body.setOffset(6, 4);
+        player.body.setSize(22, 32);
+        player.body.setOffset(5, 4);
         player.hasJetpack = false;
         player.hasShield = false;
         player.jetpackTimer = 0;
