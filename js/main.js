@@ -470,7 +470,7 @@ class MenuScene extends Phaser.Scene {
                 backgroundColor: dayBg, padding: { x: 3, y: 2 }
             }).setOrigin(0.5).setDepth(102);
 
-            this.add.text(dx, calY + 18, dayInfo.coins + 'c', {
+            this.add.text(dx, calY + 18, dayInfo.coins + ' coins', {
                 fontSize: '9px', fontFamily: 'Arial', color: '#aaaaaa'
             }).setOrigin(0.5).setDepth(102);
 
