@@ -2,37 +2,24 @@
 
 const EnemyManager = {
     createEnemyTextures(scene) {
-        const theme = scene.selectedTheme || 'classic';
-
         const gfx = scene.make.graphics({ add: false });
-        if (theme === 'neon') {
-            gfx.fillStyle(0xff0055, 1);
-            gfx.fillCircle(15, 15, 15);
-            gfx.fillStyle(0xff3388, 1);
-            gfx.fillCircle(8, 10, 4);
-            gfx.fillCircle(22, 10, 4);
-            gfx.lineStyle(2, 0xff0055, 0.5);
-            gfx.strokeCircle(15, 15, 17);
-        } else if (theme === 'space') {
-            gfx.fillStyle(0xdd4444, 1);
-            gfx.fillCircle(15, 15, 14);
-            gfx.fillStyle(0xff8888, 1);
-            gfx.fillCircle(8, 11, 4);
-            gfx.fillCircle(22, 11, 4);
-            // Antenna
-            gfx.lineStyle(2, 0xdd4444, 1);
-            gfx.lineBetween(15, 1, 15, -5);
-            gfx.fillCircle(15, -5, 3);
-        } else {
-            gfx.fillStyle(0xcc3333, 1);
-            gfx.fillCircle(15, 15, 13);
-            gfx.fillStyle(0xffffff, 1);
-            gfx.fillCircle(9, 12, 4);
-            gfx.fillCircle(21, 12, 4);
-            gfx.fillStyle(0x000000, 1);
-            gfx.fillCircle(10, 12, 2);
-            gfx.fillCircle(22, 12, 2);
-        }
+        // Simple round monster (Doodle Jump style) - dark body with eyes
+        gfx.fillStyle(0x884422, 1);
+        gfx.fillCircle(15, 15, 13);
+        // Lighter belly
+        gfx.fillStyle(0xaa6633, 1);
+        gfx.fillCircle(15, 18, 8);
+        // Eyes - white with dark pupils
+        gfx.fillStyle(0xffffff, 1);
+        gfx.fillCircle(10, 12, 5);
+        gfx.fillCircle(20, 12, 5);
+        gfx.fillStyle(0x222222, 1);
+        gfx.fillCircle(11, 12, 2.5);
+        gfx.fillCircle(21, 12, 2.5);
+        // Small horns/bumps on top
+        gfx.fillStyle(0x884422, 1);
+        gfx.fillCircle(8, 4, 4);
+        gfx.fillCircle(22, 4, 4);
         gfx.generateTexture('enemy', 30, 30);
         gfx.destroy();
     },
