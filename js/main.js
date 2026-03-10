@@ -147,7 +147,7 @@ class MenuScene extends Phaser.Scene {
         const titleNeon = this.add.text(w / 2, h * 0.1, 'DOODLE', titleStyle).setOrigin(0.5);
         const titleLeap = this.add.text(w / 2, h * 0.2, 'LEAP', titleStyle).setOrigin(0.5);
 
-        // Animate title with pulsing glow
+        // Animate title with subtle fade
         this.tweens.add({
             targets: [titleNeon, titleLeap],
             alpha: { from: 0.8, to: 1 },
