@@ -270,36 +270,44 @@ class MenuScene extends Phaser.Scene {
             ease: 'Sine.easeInOut'
         });
 
-        // Animated character blob in center
+        // Animated character blob in center (Doodle Jump style)
         const charGfx = this.add.graphics();
         const cx = 0, cy = 0;
-        // Soft outer glow
-        charGfx.fillStyle(0x00ffcc, 0.12);
-        charGfx.fillCircle(cx, cy + 2, 20);
-        // Body - wide round blob
-        charGfx.fillStyle(0x00ffcc, 1);
-        charGfx.fillCircle(cx, cy + 6, 15);
-        // Head
-        charGfx.fillStyle(0x00ffcc, 1);
-        charGfx.fillCircle(cx, cy - 4, 14);
-        // Smooth neck
-        charGfx.fillStyle(0x00ffcc, 1);
-        charGfx.fillRect(cx - 13, cy - 4, 26, 12);
-        // Small feet
-        charGfx.fillStyle(0x00ffcc, 1);
-        charGfx.fillCircle(cx - 7, cy + 18, 5);
-        charGfx.fillCircle(cx + 7, cy + 18, 5);
-        // Eyes - large, dark, expressive
+        // Dark outline for body
         charGfx.fillStyle(0x222222, 1);
-        charGfx.fillCircle(cx - 6, cy - 3, 6);
-        charGfx.fillCircle(cx + 6, cy - 3, 6);
-        // Eye highlights
-        charGfx.fillStyle(0xffffff, 1);
-        charGfx.fillCircle(cx - 8, cy - 5, 2.5);
-        charGfx.fillCircle(cx + 4, cy - 5, 2.5);
-        charGfx.fillStyle(0xffffff, 0.6);
-        charGfx.fillCircle(cx - 4, cy - 1, 1);
-        charGfx.fillCircle(cx + 8, cy - 1, 1);
+        charGfx.fillCircle(cx, cy - 2, 18);
+        charGfx.fillRoundedRect(cx - 18, cy, 36, 20, 5);
+        // Snout outline
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillCircle(cx + 16, cy - 4, 8);
+        charGfx.fillCircle(cx + 22, cy - 4, 5);
+        // Yellow-green body fill
+        charGfx.fillStyle(0xc8d840, 1);
+        charGfx.fillCircle(cx, cy - 2, 15);
+        charGfx.fillRoundedRect(cx - 15, cy, 30, 17, 4);
+        // Snout fill
+        charGfx.fillStyle(0xc8d840, 1);
+        charGfx.fillCircle(cx + 14, cy - 4, 6);
+        charGfx.fillCircle(cx + 19, cy - 4, 3.5);
+        // Snout nostril
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillCircle(cx + 20, cy - 5, 1.5);
+        // Green striped shirt
+        charGfx.fillStyle(0x4a8030, 1);
+        charGfx.fillRoundedRect(cx - 14, cy + 6, 28, 13, 3);
+        // Shirt stripes
+        charGfx.fillStyle(0x222222, 0.4);
+        charGfx.fillRect(cx - 13, cy + 10, 26, 2);
+        charGfx.fillRect(cx - 13, cy + 15, 26, 2);
+        // Eyes
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillCircle(cx - 5, cy - 4, 3.5);
+        charGfx.fillCircle(cx + 5, cy - 4, 3.5);
+        // Legs
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillRect(cx - 10, cy + 17, 5, 8);
+        charGfx.fillRect(cx - 2, cy + 17, 5, 8);
+        charGfx.fillRect(cx + 6, cy + 17, 5, 8);
         charGfx.setPosition(w / 2, h * 0.48);
 
         // Bounce animation
@@ -722,36 +730,19 @@ class GameScene extends Phaser.Scene {
     setupControls(w, h) {
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Touch controls
-        const btnSize = 60;
-        const btnY = h - 45;
-        const btnAlpha = 0.25;
-
-        // Left button
-        const leftBtn = this.add.rectangle(btnSize / 2 + 10, btnY, btnSize, btnSize, 0xffffff, btnAlpha)
+        // Invisible half-screen touch zones (left half = move left, right half = move right)
+        const leftZone = this.add.rectangle(w / 4, h / 2, w / 2, h, 0x000000, 0)
             .setScrollFactor(0).setDepth(30).setInteractive();
-        // Draw left arrow icon
-        const leftArrow = this.add.graphics().setScrollFactor(0).setDepth(31);
-        const lx = btnSize / 2 + 10, ly = btnY;
-        leftArrow.fillStyle(0xffffff, 0.8);
-        leftArrow.fillTriangle(lx - 10, ly, lx + 5, ly - 8, lx + 5, ly + 8);
-
-        leftBtn.on('pointerdown', () => { this.touchLeft = true; });
-        leftBtn.on('pointerup', () => { this.touchLeft = false; });
-        leftBtn.on('pointerout', () => { this.touchLeft = false; });
-
-        // Right button
-        const rightBtn = this.add.rectangle(w - btnSize / 2 - 10, btnY, btnSize, btnSize, 0xffffff, btnAlpha)
+        const rightZone = this.add.rectangle(w * 3 / 4, h / 2, w / 2, h, 0x000000, 0)
             .setScrollFactor(0).setDepth(30).setInteractive();
-        // Draw right arrow icon
-        const rightArrow = this.add.graphics().setScrollFactor(0).setDepth(31);
-        const rx = w - btnSize / 2 - 10, ry = btnY;
-        rightArrow.fillStyle(0xffffff, 0.8);
-        rightArrow.fillTriangle(rx + 10, ry, rx - 5, ry - 8, rx - 5, ry + 8);
 
-        rightBtn.on('pointerdown', () => { this.touchRight = true; });
-        rightBtn.on('pointerup', () => { this.touchRight = false; });
-        rightBtn.on('pointerout', () => { this.touchRight = false; });
+        leftZone.on('pointerdown', () => { this.touchLeft = true; });
+        leftZone.on('pointerup', () => { this.touchLeft = false; });
+        leftZone.on('pointerout', () => { this.touchLeft = false; });
+
+        rightZone.on('pointerdown', () => { this.touchRight = true; });
+        rightZone.on('pointerup', () => { this.touchRight = false; });
+        rightZone.on('pointerout', () => { this.touchRight = false; });
     }
 
     setupParticles() {
