@@ -1,5 +1,5 @@
 # Neon Jump
-sk-jf9E2zjBeEhv1gNyHDMEzT8zbrGhV8kNeJa3UVnzEhyRzaOV
+
 A vertical endless jumping game inspired by Doodle Jump, built with HTML5, JavaScript, and the Phaser.js game engine. Optimized for Android devices and compatible with all modern mobile and desktop browsers.
 
 ## Game Concept
