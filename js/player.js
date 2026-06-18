@@ -5,8 +5,8 @@ const PlayerManager = {
         {
             id: 'classic',
             name: 'Classic Hero',
-            description: 'Simple neon character',
-            colors: { body: 0x00ff88, outline: 0x00ffaa, eye: 0xffffff, pupil: 0x000000 },
+            description: 'Doodle Jump style character',
+            colors: { body: 0xc8d840, bodyDark: 0x4a8030, outline: 0x222222, eye: 0xffffff, pupil: 0x222222 },
             cost: 0
         },
         {
@@ -75,35 +75,53 @@ const PlayerManager = {
             gfx.lineStyle(1, c.outline, 0.6);
             gfx.lineBetween(6, 20, 26, 20);
         } else {
-            // Classic Hero
-            // Body
+            // Classic Hero - Doodle Jump style character
+            // Thick dark outline for body
+            gfx.fillStyle(c.outline, 1);
+            gfx.fillCircle(16, 14, 14);
+            gfx.fillRoundedRect(2, 14, 28, 16, 4);
+            // Snout outline
+            gfx.fillStyle(c.outline, 1);
+            gfx.fillCircle(28, 12, 6);
+            gfx.fillCircle(32, 12, 4);
+            // Yellow-green body fill
             gfx.fillStyle(c.body, 1);
-            gfx.fillRoundedRect(6, 4, 20, 22, 5);
-            // Eyes
-            gfx.fillStyle(c.eye, 1);
-            gfx.fillCircle(12, 12, 4);
-            gfx.fillCircle(20, 12, 4);
+            gfx.fillCircle(16, 14, 12);
+            gfx.fillRoundedRect(4, 14, 24, 14, 3);
+            // Snout fill
+            gfx.fillStyle(c.body, 1);
+            gfx.fillCircle(27, 12, 4);
+            gfx.fillCircle(30, 12, 2.5);
+            // Snout nostril
+            gfx.fillStyle(c.outline, 1);
+            gfx.fillCircle(31, 11, 1);
+            // Green striped shirt on lower body
+            gfx.fillStyle(c.bodyDark, 1);
+            gfx.fillRoundedRect(5, 20, 22, 10, 2);
+            // Shirt stripes (dark lines)
+            gfx.fillStyle(c.outline, 0.4);
+            gfx.fillRect(6, 23, 20, 2);
+            gfx.fillRect(6, 27, 20, 2);
+            // Eyes - small dark ovals
             gfx.fillStyle(c.pupil, 1);
-            gfx.fillCircle(13, 12, 2);
-            gfx.fillCircle(21, 12, 2);
-            // Legs
-            gfx.fillStyle(c.body, 1);
-            gfx.fillRect(9, 24, 5, 8);
-            gfx.fillRect(18, 24, 5, 8);
-            // Outline glow
-            gfx.lineStyle(1, c.outline, 0.5);
-            gfx.strokeRoundedRect(6, 4, 20, 22, 5);
+            gfx.fillCircle(12, 12, 2.5);
+            gfx.fillCircle(20, 12, 2.5);
+            // Legs - small dark rectangles at bottom
+            gfx.fillStyle(c.outline, 1);
+            gfx.fillRect(7, 30, 4, 6);
+            gfx.fillRect(14, 30, 4, 6);
+            gfx.fillRect(21, 30, 4, 6);
         }
 
-        gfx.generateTexture('player', 32, 36);
+        gfx.generateTexture('player', 36, 38);
         gfx.destroy();
     },
 
     createPlayer(scene, x, y) {
         const player = scene.physics.add.sprite(x, y, 'player');
         player.setCollideWorldBounds(true);
-        player.body.setSize(20, 30);
-        player.body.setOffset(6, 4);
+        player.body.setSize(24, 32);
+        player.body.setOffset(4, 4);
         player.hasJetpack = false;
         player.hasShield = false;
         player.jetpackTimer = 0;

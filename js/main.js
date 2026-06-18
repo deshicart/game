@@ -1,4 +1,4 @@
-// main.js - Neon Jump Game Entry Point
+// main.js - Neon Leap Game Entry Point
 
 // ============================================================
 // AUDIO MANAGER - Generate sounds using Web Audio API
@@ -127,226 +127,302 @@ class MenuScene extends Phaser.Scene {
     create() {
         const w = this.scale.width;
         const h = this.scale.height;
-        const theme = UIManager.getSelectedTheme();
 
-        this.drawBackground(theme, w, h);
+        // Light background (Doodle Jump graph paper style)
+        this.cameras.main.setBackgroundColor('#f5f0e0');
+        this.drawMenuBackground(w, h);
 
-        // Title
+        // Animated decorative elements
+        this.drawAnimatedElements(w, h);
+
+        // Title "DOODLE LEAP"
         const titleStyle = {
-            fontSize: Math.min(48, w * 0.1) + 'px',
+            fontSize: Math.min(60, w * 0.15) + 'px',
             fontFamily: 'Arial, sans-serif',
             fontStyle: 'bold',
-            color: '#00ffcc',
-            stroke: '#004444',
-            strokeThickness: 4,
-            shadow: { offsetX: 0, offsetY: 0, color: '#00ffcc', blur: 20, fill: true }
+            color: '#4a8030',
+            stroke: '#2d5a1a',
+            strokeThickness: 3
         };
-        this.add.text(w / 2, h * 0.1, 'NEON JUMP', titleStyle).setOrigin(0.5);
+        const titleNeon = this.add.text(w / 2, h * 0.1, 'DOODLE', titleStyle).setOrigin(0.5);
+        const titleLeap = this.add.text(w / 2, h * 0.2, 'LEAP', titleStyle).setOrigin(0.5);
 
-        // Coin display
-        const coins = UIManager.getCoins();
-        this.coinText = this.add.text(w - 15, 15, '🪙 ' + coins, {
-            fontSize: '18px', fontFamily: 'Arial', color: '#ffdd44'
-        }).setOrigin(1, 0);
+        // Animate title with subtle fade
+        this.tweens.add({
+            targets: [titleNeon, titleLeap],
+            alpha: { from: 0.8, to: 1 },
+            duration: 1500,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
 
-        // Best score
+        // Tagline
+        const tagline = this.add.text(w / 2, h * 0.37, 'Jump. Survive. Ascend.', {
+            fontSize: '16px', fontFamily: 'Arial, sans-serif', color: '#888877'
+        }).setOrigin(0.5).setAlpha(0);
+
+        this.tweens.add({
+            targets: tagline,
+            alpha: 1,
+            duration: 1000,
+            delay: 500
+        });
+
+        // Best score (no emoji - use drawn icon)
         const best = UIManager.getBestScore();
-        this.add.text(w / 2, h * 0.17, 'Best: ' + best, {
-            fontSize: '16px', fontFamily: 'Arial', color: '#aaaaaa'
+        const bestStr = best.toLocaleString();
+        this.drawTrophyIcon(w / 2 - 70, h * 0.6 - 10);
+        this.add.text(w / 2 + 10, h * 0.6, 'BEST: ' + bestStr, {
+            fontSize: '20px', fontFamily: 'Arial, sans-serif', fontStyle: 'bold',
+            color: '#c8a020'
         }).setOrigin(0.5);
 
-        // Play button
-        this.createButton(w / 2, h * 0.28, '▶  PLAY', '#00ff88', () => {
+        // TAP TO START button
+        this.createStartButton(w, h);
+
+        // Warning (no emoji)
+        this.add.text(w / 2, h * 0.8, 'Stomp enemies from above to kill!', {
+            fontSize: '13px', fontFamily: 'Arial, sans-serif', color: '#aa7733'
+        }).setOrigin(0.5);
+
+        // Controls info
+        this.add.text(w / 2, h * 0.86, 'Arrow keys  |  Tap sides  |  Tilt phone', {
+            fontSize: '11px', fontFamily: 'Arial, sans-serif', color: '#999988'
+        }).setOrigin(0.5);
+
+        // Platform legend
+        this.drawPlatformLegend(w, h);
+    }
+
+    drawMenuBackground(w, h) {
+        const gfx = this.add.graphics();
+        // Graph paper grid lines (Doodle Jump notebook style)
+        gfx.lineStyle(1, 0xd0c8b0, 0.3);
+        for (let x = 0; x < w; x += 20) {
+            gfx.lineBetween(x, 0, x, h);
+        }
+        for (let y = 0; y < h; y += 20) {
+            gfx.lineBetween(0, y, w, y);
+        }
+    }
+
+    drawAnimatedElements(w, h) {
+        // Floating platform animation (left) - simple green
+        const platGfx1 = this.add.graphics();
+        platGfx1.fillStyle(0x59b535, 1);
+        platGfx1.fillRoundedRect(-45, -5, 90, 12, 6);
+        platGfx1.fillStyle(0x4a9e2d, 1);
+        platGfx1.fillRoundedRect(-45, 0, 90, 7, 5);
+        platGfx1.setPosition(80, h * 0.3);
+
+        this.tweens.add({
+            targets: platGfx1,
+            y: h * 0.3 - 8,
+            duration: 2000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Floating platform animation (right) - blue moving platform
+        const platGfx2 = this.add.graphics();
+        platGfx2.fillStyle(0x5bb5e0, 1);
+        platGfx2.fillRoundedRect(-40, -5, 80, 12, 6);
+        platGfx2.fillStyle(0x4a9ec8, 1);
+        platGfx2.fillRoundedRect(-40, 0, 80, 7, 5);
+        platGfx2.setPosition(w - 80, h * 0.43);
+
+        this.tweens.add({
+            targets: platGfx2,
+            x: w - 70,
+            duration: 3000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Animated character blob in center (Doodle Jump style)
+        const charGfx = this.add.graphics();
+        const cx = 0, cy = 0;
+        // Dark outline for body
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillCircle(cx, cy - 2, 18);
+        charGfx.fillRoundedRect(cx - 18, cy, 36, 20, 5);
+        // Snout outline
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillCircle(cx + 16, cy - 4, 8);
+        charGfx.fillCircle(cx + 22, cy - 4, 5);
+        // Yellow-green body fill
+        charGfx.fillStyle(0xc8d840, 1);
+        charGfx.fillCircle(cx, cy - 2, 15);
+        charGfx.fillRoundedRect(cx - 15, cy, 30, 17, 4);
+        // Snout fill
+        charGfx.fillStyle(0xc8d840, 1);
+        charGfx.fillCircle(cx + 14, cy - 4, 6);
+        charGfx.fillCircle(cx + 19, cy - 4, 3.5);
+        // Snout nostril
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillCircle(cx + 20, cy - 5, 1.5);
+        // Green striped shirt
+        charGfx.fillStyle(0x4a8030, 1);
+        charGfx.fillRoundedRect(cx - 14, cy + 6, 28, 13, 3);
+        // Shirt stripes
+        charGfx.fillStyle(0x222222, 0.4);
+        charGfx.fillRect(cx - 13, cy + 10, 26, 2);
+        charGfx.fillRect(cx - 13, cy + 15, 26, 2);
+        // Eyes
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillCircle(cx - 5, cy - 4, 3.5);
+        charGfx.fillCircle(cx + 5, cy - 4, 3.5);
+        // Legs
+        charGfx.fillStyle(0x222222, 1);
+        charGfx.fillRect(cx - 10, cy + 17, 5, 8);
+        charGfx.fillRect(cx - 2, cy + 17, 5, 8);
+        charGfx.fillRect(cx + 6, cy + 17, 5, 8);
+        charGfx.setPosition(w / 2, h * 0.48);
+
+        // Bounce animation
+        this.tweens.add({
+            targets: charGfx,
+            y: h * 0.48 - 15,
+            duration: 600,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeOut'
+        });
+
+        // Draw enemy (brown monster) with animation
+        const enemyGfx = this.add.graphics();
+        enemyGfx.fillStyle(0x884422, 1);
+        enemyGfx.fillCircle(0, 0, 14);
+        enemyGfx.fillStyle(0xaa6633, 1);
+        enemyGfx.fillCircle(0, 3, 8);
+        // Eyes
+        enemyGfx.fillStyle(0xffffff, 1);
+        enemyGfx.fillCircle(-5, -3, 4);
+        enemyGfx.fillCircle(5, -3, 4);
+        enemyGfx.fillStyle(0x222222, 1);
+        enemyGfx.fillCircle(-4, -3, 2);
+        enemyGfx.fillCircle(6, -3, 2);
+        // Horns
+        enemyGfx.fillStyle(0x884422, 1);
+        enemyGfx.fillCircle(-7, -11, 4);
+        enemyGfx.fillCircle(7, -11, 4);
+        enemyGfx.setPosition(55, h * 0.52);
+
+        // Enemy float animation
+        this.tweens.add({
+            targets: enemyGfx,
+            y: h * 0.52 - 5,
+            x: 60,
+            duration: 1500,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Spring platform below character
+        const sprGfx = this.add.graphics();
+        sprGfx.fillStyle(0x59b535, 1);
+        sprGfx.fillRoundedRect(-20, 0, 40, 10, 4);
+        sprGfx.fillStyle(0xe8c020, 1);
+        sprGfx.fillRoundedRect(-8, -8, 16, 10, 3);
+        sprGfx.setPosition(w / 2, h * 0.56);
+
+        this.tweens.add({
+            targets: sprGfx,
+            y: h * 0.56 + 3,
+            duration: 1200,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+    }
+
+    drawTrophyIcon(x, y) {
+        const gfx = this.add.graphics();
+        // Cup body
+        gfx.fillStyle(0xc8a020, 1);
+        gfx.fillRoundedRect(x - 8, y - 6, 16, 14, 3);
+        // Cup handles
+        gfx.lineStyle(2, 0xc8a020, 1);
+        gfx.strokeCircle(x - 10, y + 1, 4);
+        gfx.strokeCircle(x + 10, y + 1, 4);
+        // Base
+        gfx.fillStyle(0xc8a020, 1);
+        gfx.fillRect(x - 5, y + 8, 10, 3);
+        gfx.fillRect(x - 8, y + 11, 16, 2);
+    }
+
+    createStartButton(w, h) {
+        const btnW = 220;
+        const btnH = 52;
+        const btnX = w / 2;
+        const btnY = h * 0.71;
+
+        // Button background (rounded green rectangle)
+        const gfx = this.add.graphics();
+        gfx.fillStyle(0x59b535, 1);
+        gfx.fillRoundedRect(btnX - btnW / 2, btnY - btnH / 2, btnW, btnH, 14);
+
+        // Button text
+        this.add.text(btnX, btnY, 'TAP  TO  START', {
+            fontSize: '24px', fontFamily: 'Arial, sans-serif', fontStyle: 'bold',
+            color: '#000000'
+        }).setOrigin(0.5);
+
+        // Invisible interactive area
+        const hitArea = this.add.rectangle(btnX, btnY, btnW, btnH, 0x000000, 0)
+            .setInteractive({ useHandCursor: true });
+
+        hitArea.on('pointerover', () => gfx.setScale(1.03));
+        hitArea.on('pointerout', () => gfx.setScale(1));
+        hitArea.on('pointerdown', () => {
             AudioManager.resume();
             this.scene.start('GameScene', {
                 character: UIManager.getSelectedCharacter(),
                 theme: UIManager.getSelectedTheme()
             });
         });
-
-        // Character selection
-        this.add.text(w / 2, h * 0.38, 'CHARACTER', {
-            fontSize: '14px', fontFamily: 'Arial', color: '#888888'
-        }).setOrigin(0.5);
-
-        this.createCharacterSelection(w, h);
-
-        // Theme selection
-        this.add.text(w / 2, h * 0.58, 'THEME', {
-            fontSize: '14px', fontFamily: 'Arial', color: '#888888'
-        }).setOrigin(0.5);
-
-        this.createThemeSelection(w, h);
-
-        // Level info
-        this.add.text(w / 2, h * 0.78, 'LEVELS', {
-            fontSize: '14px', fontFamily: 'Arial', color: '#888888'
-        }).setOrigin(0.5);
-
-        this.createLevelDisplay(w, h);
-
-        // Daily reward button
-        this.createButton(w / 2, h * 0.93, '🎁 Daily Reward', '#ffaa00', () => {
-            this.showDailyReward(w, h);
-        }, 14);
-
-        // Check and auto-show daily reward
-        const rewardStatus = UIManager.checkDailyReward();
-        if (rewardStatus.canClaim) {
-            this.time.delayedCall(500, () => {
-                this.showDailyReward(w, h);
-            });
-        }
     }
 
-    drawBackground(theme, w, h) {
-        if (theme === 'neon') {
-            this.cameras.main.setBackgroundColor('#0a0a2e');
-            // Add neon grid lines
-            const gfx = this.add.graphics();
-            gfx.lineStyle(1, 0x00ffcc, 0.08);
-            for (let x = 0; x < w; x += 40) {
-                gfx.lineBetween(x, 0, x, h);
-            }
-            for (let y = 0; y < h; y += 40) {
-                gfx.lineBetween(0, y, w, y);
-            }
-        } else if (theme === 'space') {
-            this.cameras.main.setBackgroundColor('#050515');
-            const gfx = this.add.graphics();
-            for (let i = 0; i < 60; i++) {
-                const sx = Phaser.Math.Between(0, w);
-                const sy = Phaser.Math.Between(0, h);
-                const size = Math.random() * 2 + 0.5;
-                gfx.fillStyle(0xffffff, Math.random() * 0.6 + 0.2);
-                gfx.fillCircle(sx, sy, size);
-            }
-        } else {
-            this.cameras.main.setBackgroundColor('#e8e8e0');
-        }
-    }
-
-    createButton(x, y, text, color, callback, fontSize) {
-        const fs = fontSize || 20;
-        const btn = this.add.text(x, y, text, {
-            fontSize: fs + 'px',
-            fontFamily: 'Arial, sans-serif',
-            fontStyle: 'bold',
-            color: color,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            padding: { x: 24, y: 10 }
-        }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-        btn.on('pointerover', () => btn.setScale(1.05));
-        btn.on('pointerout', () => btn.setScale(1));
-        btn.on('pointerdown', callback);
-        return btn;
-    }
-
-    createCharacterSelection(w, h) {
-        const selected = UIManager.getSelectedCharacter();
-        const owned = UIManager.getOwnedCharacters();
-        const chars = PlayerManager.characters;
-        const spacing = w / (chars.length + 1);
-
-        chars.forEach((char, i) => {
-            const x = spacing * (i + 1);
-            const y = h * 0.45;
-            const isOwned = owned.includes(char.id);
-            const isSelected = char.id === selected;
-
-            const bgColor = isSelected ? 'rgba(0,255,200,0.25)' : 'rgba(255,255,255,0.08)';
-            const textColor = isOwned ? '#ffffff' : '#666666';
-            const label = isOwned ? char.name : char.name + '\n🪙' + char.cost;
-
-            const btn = this.add.text(x, y, label, {
-                fontSize: '12px',
-                fontFamily: 'Arial',
-                color: textColor,
-                backgroundColor: bgColor,
-                padding: { x: 8, y: 6 },
-                align: 'center'
-            }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-            if (isSelected) {
-                btn.setStyle({ stroke: '#00ffcc', strokeThickness: 1 });
-            }
-
-            btn.on('pointerdown', () => {
-                if (isOwned) {
-                    UIManager.setSelectedCharacter(char.id);
-                    this.scene.restart();
-                } else {
-                    const coins = UIManager.getCoins();
-                    if (coins >= char.cost) {
-                        UIManager.setCoins(coins - char.cost);
-                        UIManager.addOwnedCharacter(char.id);
-                        UIManager.setSelectedCharacter(char.id);
-                        AudioManager.playCoin();
-                        this.scene.restart();
-                    }
-                }
-            });
-        });
-    }
-
-    createThemeSelection(w, h) {
-        const themes = [
-            { id: 'classic', name: 'Classic', color: '#44bb44' },
-            { id: 'neon', name: 'Neon', color: '#00ffcc' },
-            { id: 'space', name: 'Space', color: '#8888ff' }
+    drawPlatformLegend(w, h) {
+        const gfx = this.add.graphics();
+        const legendY = h * 0.93;
+        const labelY = legendY + 14;
+        const items = [
+            { name: 'Normal', color: 0x59b535, highlight: 0x4a9e2d },
+            { name: 'Moving', color: 0x5bb5e0, highlight: 0x4a9ec8 },
+            { name: 'Break', color: 0xc8a060, highlight: 0xb08848 },
+            { name: 'Spring', color: 0x59b535, highlight: 0x4a9e2d, isSpring: true },
+            { name: 'Boost', color: 0xcc66cc, highlight: 0xaa44aa }
         ];
-        const selected = UIManager.getSelectedTheme();
-        const spacing = w / (themes.length + 1);
+        const spacing = w / (items.length + 1);
 
-        themes.forEach((theme, i) => {
-            const x = spacing * (i + 1);
-            const y = h * 0.65;
-            const isSelected = theme.id === selected;
-            const bgColor = isSelected ? 'rgba(0,255,200,0.25)' : 'rgba(255,255,255,0.08)';
+        items.forEach((item, i) => {
+            const ix = spacing * (i + 1);
 
-            const btn = this.add.text(x, y, theme.name, {
-                fontSize: '14px',
-                fontFamily: 'Arial',
-                fontStyle: 'bold',
-                color: theme.color,
-                backgroundColor: bgColor,
-                padding: { x: 12, y: 6 }
-            }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-            if (isSelected) {
-                btn.setStyle({ stroke: theme.color, strokeThickness: 1 });
+            if (item.isSpring) {
+                // Spring icon
+                gfx.fillStyle(item.color, 1);
+                gfx.fillRoundedRect(ix - 16, legendY - 2, 32, 6, 3);
+                gfx.fillStyle(0xe8c020, 1);
+                gfx.fillRoundedRect(ix - 5, legendY - 8, 10, 8, 2);
+            } else {
+                // Colored bar with glow style
+                gfx.fillStyle(item.color, 1);
+                gfx.fillRoundedRect(ix - 18, legendY - 2, 36, 6, 3);
+                gfx.fillStyle(item.highlight, 0.6);
+                gfx.fillRoundedRect(ix - 16, legendY - 1, 32, 3, 2);
             }
 
-            btn.on('pointerdown', () => {
-                UIManager.setSelectedTheme(theme.id);
-                this.scene.restart();
-            });
+            // Label
+            this.add.text(ix, labelY, item.name, {
+                fontSize: '10px', fontFamily: 'Arial, sans-serif',
+                color: '#888877'
+            }).setOrigin(0.5, 0);
         });
-    }
-
-    createLevelDisplay(w, h) {
-        const best = UIManager.getBestScore();
-        const unlocked = LevelConfig.getUnlockedLevels(best);
-        const y = h * 0.84;
-        const totalLevels = LevelConfig.levels.length;
-        const spacing = Math.min(30, (w - 40) / totalLevels);
-        const startX = w / 2 - (totalLevels - 1) * spacing / 2;
-
-        for (let i = 0; i < totalLevels; i++) {
-            const level = LevelConfig.levels[i];
-            const isUnlocked = best >= level.unlockScore;
-            const lx = startX + i * spacing;
-
-            this.add.text(lx, y, (i + 1).toString(), {
-                fontSize: '13px',
-                fontFamily: 'Arial',
-                fontStyle: 'bold',
-                color: isUnlocked ? '#00ff88' : '#444444',
-                backgroundColor: isUnlocked ? 'rgba(0,255,136,0.15)' : 'rgba(255,255,255,0.05)',
-                padding: { x: 4, y: 2 }
-            }).setOrigin(0.5);
-        }
     }
 
     showDailyReward(w, h) {
@@ -360,13 +436,13 @@ class MenuScene extends Phaser.Scene {
         // Popup background
         const popW = Math.min(320, w * 0.85);
         const popH = Math.min(400, h * 0.6);
-        const popBg = this.add.rectangle(w / 2, h / 2, popW, popH, 0x1a1a3e, 1)
-            .setStrokeStyle(2, 0x00ffcc)
+        const popBg = this.add.rectangle(w / 2, h / 2, popW, popH, 0xf0ead0, 1)
+            .setStrokeStyle(2, 0x59b535)
             .setDepth(101);
 
-        // Title
-        const title = this.add.text(w / 2, h / 2 - popH / 2 + 25, '🎁 DAILY REWARD', {
-            fontSize: '20px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffdd44'
+        // Title (no emoji)
+        const title = this.add.text(w / 2, h / 2 - popH / 2 + 25, 'DAILY REWARD', {
+            fontSize: '20px', fontFamily: 'Arial', fontStyle: 'bold', color: '#c8a020'
         }).setOrigin(0.5).setDepth(102);
 
         // Calendar
@@ -379,22 +455,24 @@ class MenuScene extends Phaser.Scene {
             const isCurrent = (i + 1) === rewardStatus.day;
             const isPast = (i + 1) < rewardStatus.day;
 
-            const dayColor = isCurrent ? '#ffdd44' : (isPast ? '#00ff88' : '#666666');
-            const dayBg = isCurrent ? 'rgba(255,221,0,0.2)' : (isPast ? 'rgba(0,255,136,0.15)' : 'rgba(255,255,255,0.05)');
+            const dayColor = isCurrent ? '#c8a020' : (isPast ? '#59b535' : '#666666');
+            const dayBg = isCurrent ? 'rgba(200,160,32,0.2)' : (isPast ? 'rgba(89,181,53,0.15)' : 'rgba(0,0,0,0.05)');
 
             this.add.text(dx, calY, 'D' + (i + 1), {
                 fontSize: '11px', fontFamily: 'Arial', fontStyle: 'bold', color: dayColor,
                 backgroundColor: dayBg, padding: { x: 3, y: 2 }
             }).setOrigin(0.5).setDepth(102);
 
-            this.add.text(dx, calY + 18, '🪙' + dayInfo.coins, {
-                fontSize: '9px', fontFamily: 'Arial', color: '#aaaaaa'
+            this.add.text(dx, calY + 18, dayInfo.coins + ' coins', {
+                fontSize: '9px', fontFamily: 'Arial', color: '#888877'
             }).setOrigin(0.5).setDepth(102);
 
             if (isPast) {
-                this.add.text(dx, calY + 32, '✅', {
-                    fontSize: '10px'
-                }).setOrigin(0.5).setDepth(102);
+                // Draw a checkmark icon instead of emoji
+                const checkGfx = this.add.graphics().setDepth(102);
+                checkGfx.lineStyle(2, 0x59b535, 1);
+                checkGfx.lineBetween(dx - 4, calY + 32, dx - 1, calY + 36);
+                checkGfx.lineBetween(dx - 1, calY + 36, dx + 5, calY + 28);
             }
         }
 
@@ -403,33 +481,33 @@ class MenuScene extends Phaser.Scene {
         const infoY = h / 2 + 10;
 
         this.add.text(w / 2, infoY, 'Day ' + rewardStatus.day, {
-            fontSize: '22px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffffff'
+            fontSize: '22px', fontFamily: 'Arial', fontStyle: 'bold', color: '#333322'
         }).setOrigin(0.5).setDepth(102);
 
-        this.add.text(w / 2, infoY + 30, '🪙 ' + currentReward.coins + ' Coins', {
-            fontSize: '18px', fontFamily: 'Arial', color: '#ffdd44'
+        this.add.text(w / 2, infoY + 30, currentReward.coins + ' Coins', {
+            fontSize: '18px', fontFamily: 'Arial', color: '#c8a020'
         }).setOrigin(0.5).setDepth(102);
 
         if (currentReward.special) {
             this.add.text(w / 2, infoY + 55, currentReward.special, {
-                fontSize: '12px', fontFamily: 'Arial', color: '#ff88ff'
+                fontSize: '12px', fontFamily: 'Arial', color: '#aa44aa'
             }).setOrigin(0.5).setDepth(102);
         }
 
         // Claim or Close button
         if (rewardStatus.canClaim) {
-            const claimBtn = this.add.text(w / 2, infoY + 90, '✨ CLAIM ✨', {
-                fontSize: '20px', fontFamily: 'Arial', fontStyle: 'bold', color: '#000000',
-                backgroundColor: '#ffdd44', padding: { x: 24, y: 8 }
+            const claimBtn = this.add.text(w / 2, infoY + 90, 'CLAIM', {
+                fontSize: '20px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffffff',
+                backgroundColor: '#59b535', padding: { x: 24, y: 8 }
             }).setOrigin(0.5).setDepth(102).setInteractive({ useHandCursor: true });
 
             claimBtn.on('pointerdown', () => {
                 const reward = UIManager.claimDailyReward();
                 AudioManager.playCoin();
-                claimBtn.setText('✅ Claimed +' + reward.coins);
-                claimBtn.setStyle({ backgroundColor: '#44aa44' });
+                claimBtn.setText('Claimed +' + reward.coins);
+                claimBtn.setStyle({ backgroundColor: '#4a9e2d' });
                 claimBtn.removeInteractive();
-                this.coinText.setText('🪙 ' + UIManager.getCoins());
+                this.coinText.setText(UIManager.getCoins());
 
                 this.time.delayedCall(1200, () => {
                     this.destroyPopup();
@@ -437,13 +515,13 @@ class MenuScene extends Phaser.Scene {
             });
         } else {
             this.add.text(w / 2, infoY + 80, 'Already claimed today!', {
-                fontSize: '14px', fontFamily: 'Arial', color: '#888888'
+                fontSize: '14px', fontFamily: 'Arial', color: '#888877'
             }).setOrigin(0.5).setDepth(102);
         }
 
-        // Close button
-        const closeBtn = this.add.text(w / 2 + popW / 2 - 15, h / 2 - popH / 2 + 10, '✕', {
-            fontSize: '20px', fontFamily: 'Arial', color: '#ff4444'
+        // Close button (X text, not emoji)
+        const closeBtn = this.add.text(w / 2 + popW / 2 - 15, h / 2 - popH / 2 + 10, 'X', {
+            fontSize: '18px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ff4444'
         }).setOrigin(0.5).setDepth(102).setInteractive({ useHandCursor: true });
 
         closeBtn.on('pointerdown', () => {
@@ -493,38 +571,23 @@ class GameScene extends Phaser.Scene {
     }
 
     setupBackground(w, h) {
-        if (this.selectedTheme === 'neon') {
-            this.cameras.main.setBackgroundColor('#0a0a2e');
-            this.bgGraphics = this.add.graphics();
-            this.bgGraphics.lineStyle(1, 0x00ffcc, 0.05);
-            for (let x = 0; x < w; x += 40) {
-                this.bgGraphics.lineBetween(x, 0, x, h);
-            }
-            for (let y = 0; y < h; y += 40) {
-                this.bgGraphics.lineBetween(0, y, w, y);
-            }
-        } else if (this.selectedTheme === 'space') {
-            this.cameras.main.setBackgroundColor('#050515');
-            this.bgGraphics = this.add.graphics();
-            for (let i = 0; i < 50; i++) {
-                const sx = Phaser.Math.Between(0, w);
-                const sy = Phaser.Math.Between(0, h);
-                this.bgGraphics.fillStyle(0xffffff, Math.random() * 0.5 + 0.2);
-                this.bgGraphics.fillCircle(sx, sy, Math.random() * 1.5 + 0.5);
-            }
-            // Add planets
-            this.bgGraphics.fillStyle(0x334488, 0.3);
-            this.bgGraphics.fillCircle(w * 0.8, h * 0.2, 30);
-            this.bgGraphics.fillStyle(0x884433, 0.2);
-            this.bgGraphics.fillCircle(w * 0.15, h * 0.6, 20);
-        } else {
-            this.cameras.main.setBackgroundColor('#e8e8e0');
+        // Light graph paper background (Doodle Jump style)
+        this.cameras.main.setBackgroundColor('#f5f0e0');
+        this.bgGraphics = this.add.graphics();
+
+        // Graph paper grid lines
+        this.bgGraphics.lineStyle(1, 0xd0c8b0, 0.3);
+        for (let x = 0; x < w; x += 20) {
+            this.bgGraphics.lineBetween(x, 0, x, h);
         }
+        for (let y = 0; y < h; y += 20) {
+            this.bgGraphics.lineBetween(0, y, w, y);
+        }
+        this.bgGraphics.setScrollFactor(0);
     }
 
     setupPhysics(w, h) {
-        const gravity = this.selectedTheme === 'space' ? 700 : 900;
-        this.physics.world.gravity.y = gravity;
+        this.physics.world.gravity.y = 900;
         this.physics.world.setBounds(0, -999999, w, 1999999);
     }
 
@@ -569,46 +632,76 @@ class GameScene extends Phaser.Scene {
     }
 
     setupUI(w, h) {
-        const textColor = this.selectedTheme === 'classic' ? '#333333' : '#ffffff';
+        // Death counter (initialize)
+        this.deathCount = 0;
 
-        this.scoreText = this.add.text(10, 10, 'Score: 0', {
-            fontSize: '18px', fontFamily: 'Arial', fontStyle: 'bold', color: textColor
+        // Score - large dark green number, top-left
+        this.scoreText = this.add.text(15, 15, '0', {
+            fontSize: '32px', fontFamily: 'Arial', fontStyle: 'bold', color: '#4a8030'
         }).setScrollFactor(0).setDepth(20);
 
-        this.levelText = this.add.text(w - 10, 10, 'Level 1', {
-            fontSize: '14px', fontFamily: 'Arial', color: textColor
+        // Best score - on a light green bg, top-right
+        const best = UIManager.getBestScore();
+        const bestBg = this.add.graphics().setScrollFactor(0).setDepth(19);
+        bestBg.fillStyle(0x59b535, 0.3);
+        bestBg.fillRoundedRect(w - 145, 10, 140, 28, 6);
+        bestBg.lineStyle(1, 0x59b535, 0.5);
+        bestBg.strokeRoundedRect(w - 145, 10, 140, 28, 6);
+
+        this.bestText = this.add.text(w - 75, 24, 'BEST: ' + best.toLocaleString(), {
+            fontSize: '13px', fontFamily: 'Arial', fontStyle: 'bold', color: '#c8a020'
+        }).setOrigin(0.5).setScrollFactor(0).setDepth(20);
+
+        // Level text (smaller, below best)
+        this.levelText = this.add.text(w - 10, 42, 'Level 1', {
+            fontSize: '11px', fontFamily: 'Arial', color: '#888877'
         }).setOrigin(1, 0).setScrollFactor(0).setDepth(20);
+
+        // Skull icon + death count - bottom-left (drawn skull icon)
+        this.skullGfx = this.add.graphics().setScrollFactor(0).setDepth(20);
+        this.drawSkullIcon(this.skullGfx, 18, h - 22);
+
+        this.deathText = this.add.text(34, h - 30, '0', {
+            fontSize: '14px', fontFamily: 'Arial', fontStyle: 'bold', color: '#555544'
+        }).setScrollFactor(0).setDepth(20);
+    }
+
+    drawSkullIcon(gfx, x, y) {
+        // Skull head
+        gfx.fillStyle(0x888877, 1);
+        gfx.fillCircle(x, y - 3, 8);
+        // Jaw
+        gfx.fillStyle(0x888877, 1);
+        gfx.fillRoundedRect(x - 6, y + 1, 12, 6, 2);
+        // Eyes
+        gfx.fillStyle(0x333322, 1);
+        gfx.fillCircle(x - 3, y - 4, 2.5);
+        gfx.fillCircle(x + 3, y - 4, 2.5);
+        // Nose
+        gfx.fillStyle(0x333322, 1);
+        gfx.fillTriangle(x - 1, y, x + 1, y, x, y + 2);
+        // Teeth lines
+        gfx.lineStyle(1, 0x333322, 0.8);
+        gfx.lineBetween(x - 2, y + 2, x - 2, y + 6);
+        gfx.lineBetween(x + 2, y + 2, x + 2, y + 6);
     }
 
     setupControls(w, h) {
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Touch controls
-        const btnSize = 60;
-        const btnY = h - 45;
-        const btnAlpha = 0.25;
-
-        // Left button
-        const leftBtn = this.add.rectangle(btnSize / 2 + 10, btnY, btnSize, btnSize, 0xffffff, btnAlpha)
+        // Invisible half-screen touch zones (left half = move left, right half = move right)
+        const leftZone = this.add.rectangle(w / 4, h / 2, w / 2, h, 0x000000, 0)
             .setScrollFactor(0).setDepth(30).setInteractive();
-        this.add.text(btnSize / 2 + 10, btnY, '◀', {
-            fontSize: '24px', color: '#ffffff'
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(31);
-
-        leftBtn.on('pointerdown', () => { this.touchLeft = true; });
-        leftBtn.on('pointerup', () => { this.touchLeft = false; });
-        leftBtn.on('pointerout', () => { this.touchLeft = false; });
-
-        // Right button
-        const rightBtn = this.add.rectangle(w - btnSize / 2 - 10, btnY, btnSize, btnSize, 0xffffff, btnAlpha)
+        const rightZone = this.add.rectangle(w * 3 / 4, h / 2, w / 2, h, 0x000000, 0)
             .setScrollFactor(0).setDepth(30).setInteractive();
-        this.add.text(w - btnSize / 2 - 10, btnY, '▶', {
-            fontSize: '24px', color: '#ffffff'
-        }).setOrigin(0.5).setScrollFactor(0).setDepth(31);
 
-        rightBtn.on('pointerdown', () => { this.touchRight = true; });
-        rightBtn.on('pointerup', () => { this.touchRight = false; });
-        rightBtn.on('pointerout', () => { this.touchRight = false; });
+        leftZone.on('pointerdown', () => { this.touchLeft = true; });
+        leftZone.on('pointerup', () => { this.touchLeft = false; });
+        leftZone.on('pointerout', () => { this.touchLeft = false; });
+
+        rightZone.on('pointerdown', () => { this.touchRight = true; });
+        rightZone.on('pointerup', () => { this.touchRight = false; });
+        rightZone.on('pointerout', () => { this.touchRight = false; });
     }
 
     setupParticles() {
@@ -637,7 +730,7 @@ class GameScene extends Phaser.Scene {
             this.score += Math.floor((this.highestY - playerWorldY) * 0.1);
             this.highestY = playerWorldY;
         }
-        this.scoreText.setText('Score: ' + this.score);
+        this.scoreText.setText(this.score);
 
         // Update level based on score
         const newLevel = LevelConfig.getCurrentLevelForScore(this.score);
@@ -659,7 +752,7 @@ class GameScene extends Phaser.Scene {
         if (this.player.hasShield) {
             this.shieldGraphic.setVisible(true);
             this.shieldGraphic.clear();
-            this.shieldGraphic.lineStyle(2, 0x4488ff, 0.5);
+            this.shieldGraphic.lineStyle(2, 0x5bb5e0, 0.5);
             this.shieldGraphic.strokeCircle(this.player.x, this.player.y, 22);
         }
 
@@ -808,8 +901,7 @@ class GameScene extends Phaser.Scene {
     }
 
     spawnJumpParticles(x, y) {
-        const theme = this.selectedTheme;
-        const color = theme === 'neon' ? 0x00ffcc : (theme === 'space' ? 0x8888ff : 0x88dd88);
+        const color = 0x88cc44;
 
         for (let i = 0; i < 5; i++) {
             this.jumpParticles.push({
@@ -856,6 +948,12 @@ class GameScene extends Phaser.Scene {
 
         AudioManager.playGameOver();
 
+        // Increment death counter
+        this.deathCount++;
+        if (this.deathText) {
+            this.deathText.setText(this.deathCount);
+        }
+
         const bestScore = UIManager.getBestScore();
         if (this.score > bestScore) {
             UIManager.setBestScore(this.score);
@@ -891,51 +989,72 @@ class GameOverScene extends Phaser.Scene {
         const w = this.scale.width;
         const h = this.scale.height;
 
-        if (this.selectedTheme === 'neon') {
-            this.cameras.main.setBackgroundColor('#0a0a2e');
-        } else if (this.selectedTheme === 'space') {
-            this.cameras.main.setBackgroundColor('#050515');
-        } else {
-            this.cameras.main.setBackgroundColor('#e8e8e0');
-        }
+        // Light background with graph paper
+        this.cameras.main.setBackgroundColor('#f5f0e0');
 
-        const titleColor = this.selectedTheme === 'classic' ? '#cc3333' : '#ff4444';
-        const textColor = this.selectedTheme === 'classic' ? '#333333' : '#ffffff';
+        // Draw graph paper grid
+        const gridGfx = this.add.graphics();
+        gridGfx.lineStyle(1, 0xd0c8b0, 0.3);
+        for (let x = 0; x < w; x += 20) {
+            gridGfx.lineBetween(x, 0, x, h);
+        }
+        for (let y = 0; y < h; y += 20) {
+            gridGfx.lineBetween(0, y, w, y);
+        }
 
         this.add.text(w / 2, h * 0.2, 'GAME OVER', {
             fontSize: Math.min(42, w * 0.09) + 'px',
             fontFamily: 'Arial, sans-serif',
             fontStyle: 'bold',
-            color: titleColor,
+            color: '#cc3333',
             stroke: '#000000',
-            strokeThickness: 2,
-            shadow: { offsetX: 0, offsetY: 0, color: titleColor, blur: 15, fill: true }
+            strokeThickness: 2
         }).setOrigin(0.5);
 
         this.add.text(w / 2, h * 0.35, 'Score: ' + this.finalScore, {
-            fontSize: '28px', fontFamily: 'Arial', fontStyle: 'bold', color: textColor
+            fontSize: '28px', fontFamily: 'Arial', fontStyle: 'bold', color: '#333322'
         }).setOrigin(0.5);
 
         this.add.text(w / 2, h * 0.43, 'Best: ' + this.bestScore, {
-            fontSize: '20px', fontFamily: 'Arial', color: '#ffdd44'
+            fontSize: '20px', fontFamily: 'Arial', color: '#c8a020'
         }).setOrigin(0.5);
 
         if (this.finalScore >= this.bestScore && this.finalScore > 0) {
-            this.add.text(w / 2, h * 0.50, '🏆 NEW RECORD!', {
-                fontSize: '18px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffaa00'
-            }).setOrigin(0.5);
+            // Draw trophy icon instead of emoji
+            const trophyGfx = this.add.graphics();
+            trophyGfx.fillStyle(0xc8a020, 1);
+            trophyGfx.fillRoundedRect(w / 2 - 8, h * 0.50 - 8, 16, 14, 3);
+            trophyGfx.lineStyle(2, 0xc8a020, 1);
+            trophyGfx.strokeCircle(w / 2 - 10, h * 0.50 - 1, 4);
+            trophyGfx.strokeCircle(w / 2 + 10, h * 0.50 - 1, 4);
+            trophyGfx.fillRect(w / 2 - 5, h * 0.50 + 6, 10, 3);
+            trophyGfx.fillRect(w / 2 - 8, h * 0.50 + 9, 16, 2);
+
+            this.add.text(w / 2 + 20, h * 0.50, 'NEW RECORD!', {
+                fontSize: '16px', fontFamily: 'Arial', fontStyle: 'bold', color: '#c8a020'
+            }).setOrigin(0, 0.5);
         }
 
         // Level reached
         const levelReached = LevelConfig.getCurrentLevelForScore(this.finalScore);
         this.add.text(w / 2, h * 0.56, 'Level Reached: ' + levelReached.id, {
-            fontSize: '16px', fontFamily: 'Arial', color: '#aaaaaa'
+            fontSize: '16px', fontFamily: 'Arial', color: '#888877'
         }).setOrigin(0.5);
 
         // Restart button
-        const restartBtn = this.add.text(w / 2, h * 0.68, '🔄  RESTART', {
-            fontSize: '22px', fontFamily: 'Arial', fontStyle: 'bold', color: '#00ff88',
-            backgroundColor: 'rgba(0,0,0,0.4)', padding: { x: 24, y: 12 }
+        const restartGfx = this.add.graphics();
+        // Draw circular arrow icon
+        restartGfx.lineStyle(3, 0x59b535, 1);
+        restartGfx.beginPath();
+        restartGfx.arc(w / 2 - 60, h * 0.68, 8, -0.5, 4.5, false);
+        restartGfx.strokePath();
+        // Arrow head
+        restartGfx.fillStyle(0x59b535, 1);
+        restartGfx.fillTriangle(w / 2 - 55, h * 0.68 - 10, w / 2 - 52, h * 0.68 - 4, w / 2 - 58, h * 0.68 - 4);
+
+        const restartBtn = this.add.text(w / 2 + 10, h * 0.68, 'RESTART', {
+            fontSize: '22px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffffff',
+            backgroundColor: '#59b535', padding: { x: 24, y: 12 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
         restartBtn.on('pointerover', () => restartBtn.setScale(1.05));
@@ -948,9 +1067,15 @@ class GameOverScene extends Phaser.Scene {
         });
 
         // Menu button
-        const menuBtn = this.add.text(w / 2, h * 0.80, '🏠  MENU', {
-            fontSize: '18px', fontFamily: 'Arial', fontStyle: 'bold', color: '#4488ff',
-            backgroundColor: 'rgba(0,0,0,0.4)', padding: { x: 24, y: 10 }
+        const homeGfx = this.add.graphics();
+        // Draw house icon
+        homeGfx.fillStyle(0x5bb5e0, 1);
+        homeGfx.fillTriangle(w / 2 - 52, h * 0.80 - 2, w / 2 - 42, h * 0.80 - 10, w / 2 - 32, h * 0.80 - 2);
+        homeGfx.fillRect(w / 2 - 49, h * 0.80 - 2, 14, 10);
+
+        const menuBtn = this.add.text(w / 2 + 10, h * 0.80, 'MENU', {
+            fontSize: '18px', fontFamily: 'Arial', fontStyle: 'bold', color: '#ffffff',
+            backgroundColor: '#5bb5e0', padding: { x: 24, y: 10 }
         }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
         menuBtn.on('pointerover', () => menuBtn.setScale(1.05));
@@ -969,7 +1094,11 @@ const config = {
     parent: 'game-container',
     width: 400,
     height: 700,
-    backgroundColor: '#0a0a2e',
+    backgroundColor: '#f5f0e0',
+    fps: {
+        target: 30,
+        forceSetTimeOut: true
+    },
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
